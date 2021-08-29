@@ -1,11 +1,10 @@
 #pragma once
 
-#include "GameState.h"
-#include "EditorState.h"
-#include "SettingState.h"
+#include "State.h"
 #include "GUI.h"
 
-class MainMenuState : public State
+class SettingState :
+    public State
 {
 private:
     //variables
@@ -14,23 +13,26 @@ private:
     sf::Font font;
 
     std::map<std::string, gui::Button*> buttons;
+    std::map<std::string, gui::dropdownlist*> dropdownlists;
 
     //functions
     void initVariable();
     void initBackground();
     void initFonts();
     void initKeybinds();
-    void initButtons();
+    void initGUI();
 
 public:
-    MainMenuState(sf::RenderWindow* window, std::map<std::string, int>* supportedKeys, std::stack<State*>* states);
-    virtual ~MainMenuState();
+    SettingState(sf::RenderWindow* window, std::map<std::string, int>* supportedKeys, std::stack<State*>* states);
+    virtual ~SettingState();
+    
+    //Accessor
 
-    //functions
+    //Function
     void UpdateInput(const float& deltaTime);
-    void UpdateBTN();
+    void UpdateGUI(const float& deltaTime);
     void Update(const float& deltaTime);
-    void RenderBTN(sf::RenderTarget& target);
+    void RenderGUI(sf::RenderTarget& target);
     void Render(sf::RenderTarget* target = nullptr);
 };
 

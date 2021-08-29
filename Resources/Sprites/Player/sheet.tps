@@ -205,6 +205,10 @@
             <key type="filename">C:/Users/Jim/Downloads/Individual Sprites/adventurer-attack3-03.png</key>
             <key type="filename">C:/Users/Jim/Downloads/Individual Sprites/adventurer-attack3-04.png</key>
             <key type="filename">C:/Users/Jim/Downloads/Individual Sprites/adventurer-attack3-05.png</key>
+            <key type="filename">C:/Users/Jim/Downloads/Individual Sprites/adventurer-crouch-00.png</key>
+            <key type="filename">C:/Users/Jim/Downloads/Individual Sprites/adventurer-crouch-01.png</key>
+            <key type="filename">C:/Users/Jim/Downloads/Individual Sprites/adventurer-crouch-02.png</key>
+            <key type="filename">C:/Users/Jim/Downloads/Individual Sprites/adventurer-crouch-03.png</key>
             <key type="filename">C:/Users/Jim/Downloads/Individual Sprites/adventurer-die-00.png</key>
             <key type="filename">C:/Users/Jim/Downloads/Individual Sprites/adventurer-die-01.png</key>
             <key type="filename">C:/Users/Jim/Downloads/Individual Sprites/adventurer-die-02.png</key>
@@ -316,6 +320,10 @@
             <filename>C:/Users/Jim/Downloads/Individual Sprites/adventurer-hurt-02.png</filename>
             <filename>C:/Users/Jim/Downloads/Individual Sprites/adventurer-slide-00.png</filename>
             <filename>C:/Users/Jim/Downloads/Individual Sprites/adventurer-slide-01.png</filename>
+            <filename>C:/Users/Jim/Downloads/Individual Sprites/adventurer-crouch-00.png</filename>
+            <filename>C:/Users/Jim/Downloads/Individual Sprites/adventurer-crouch-01.png</filename>
+            <filename>C:/Users/Jim/Downloads/Individual Sprites/adventurer-crouch-02.png</filename>
+            <filename>C:/Users/Jim/Downloads/Individual Sprites/adventurer-crouch-03.png</filename>
         </array>
         <key>ignoreFileList</key>
         <array/>

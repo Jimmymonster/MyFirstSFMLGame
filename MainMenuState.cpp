@@ -34,22 +34,27 @@ void MainMenuState::initKeybinds()
 
 void MainMenuState::initButtons()
 {
-	this->buttons["GAME_STATE_BTN"] = new Button(70, 350, 300, 75,
+	this->buttons["GAME_STATE_BTN"] = new gui::Button(70.f, 350.f, 300.f, 75.f,
 		&this->font, "Start Game",50,
 		sf::Color::White, sf::Color::White, sf::Color::White,
 		sf::Color(70, 70, 70, 200), sf::Color(150, 150, 150, 255), sf::Color(20, 20, 20, 200));
 
-	this->buttons["OPTION_STATE_BTN"] = new Button(70, 450, 300, 75,
+/*	this->buttons["Setting_STATE_BTN"] = new gui::Button(70.f, 450.f, 300.f, 75.f,
 		&this->font, "Settings",50,
 		sf::Color::White, sf::Color::White, sf::Color::White,
 		sf::Color(70, 70, 70, 200), sf::Color(150, 150, 150, 255), sf::Color(20, 20, 20, 200));
 
-	this->buttons["EDITOR_STATE_BTN"] = new Button(70, 550, 300, 75,
+	this->buttons["EDITOR_STATE_BTN"] = new gui::Button(70.f, 550.f, 300.f, 75.f,
 		&this->font, "Editor",50,
+		sf::Color::White, sf::Color::White, sf::Color::White,
+		sf::Color(70, 70, 70, 200), sf::Color(150, 150, 150, 255), sf::Color(20, 20, 20, 200));*/
+
+	this->buttons["LEADERBOARD_STATE_BTN"] = new gui::Button(70.f, 500.f, 300.f, 75.f,
+		&this->font, "Leader Board", 50,
 		sf::Color::White, sf::Color::White, sf::Color::White,
 		sf::Color(70, 70, 70, 200), sf::Color(150, 150, 150, 255), sf::Color(20, 20, 20, 200));
 
-	this->buttons["EXIT_STATE_BTN"] = new Button(70, 650, 300, 75,
+	this->buttons["EXIT_STATE_BTN"] = new gui::Button(70.f, 650.f, 300.f, 75.f,
 		&this->font, "Quit",50,
 		sf::Color::White, sf::Color::White, sf::Color::White,
 		sf::Color(70, 70, 70, 200), sf::Color(150, 150, 150, 255), sf::Color(20, 20, 20, 200));
@@ -89,9 +94,13 @@ void MainMenuState::UpdateBTN()
 		this->states->push(new GameState(this->window, this->supportedKeys,this->states));
 	}
 
+/*	if (this->buttons["Setting_STATE_BTN"]->isPressed()) {
+		this->states->push(new SettingState(this->window, this->supportedKeys, this->states));
+	}
+
 	if (this->buttons["EDITOR_STATE_BTN"]->isPressed()) {
 		this->states->push(new EditorState(this->window, this->supportedKeys, this->states));
-	}
+	}*/
 
 	if (this->buttons["EXIT_STATE_BTN"]->isPressed()) {
 		this->endState();
