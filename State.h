@@ -15,6 +15,13 @@ protected:
 	float keytime;
 	float keytimeMax;
 
+	bool shaking;
+	int cou;
+	sf::View saveView;
+	sf::View view;
+	sf::Clock clock;
+	sf::Time temp;
+
 	//MousePos
 	sf::Vector2i mousePosScreen;
 	sf::Vector2i mousePosWindow;
@@ -38,12 +45,13 @@ public:
 	void endState();
 	void pauseState();
 	void unpauseState();
+	void shakeScreen();
 
 	//virtual
 	virtual void UpdateMousePositions();
 	virtual void UpdateKeytime(const float deltaTime);
 	
-	//pure virtual
+	//pure virtual <-- make sure to add this in each state
 	virtual void UpdateInput(const float& deltaTime) = 0;
 	virtual void Update(const float& deltaTime) = 0;
 	virtual void Render(sf::RenderTarget* target=nullptr) = 0;

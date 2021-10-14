@@ -42,8 +42,14 @@ void HitboxComponent::setpos(float x, float y)
 
 void HitboxComponent::Update()
 {
+	//bug fix if my entity struck on floor
+	if (this->hitbox.getPosition().y + this->hitbox.getGlobalBounds().height > 735.f) {
+		this->sprite.setPosition(this->sprite.getPosition().x,730.f - height - offsetX - moveX);
+	}
+	//========================
 	this->hitbox.setPosition(this->sprite.getPosition().x + offsetX + moveX, this->sprite.getPosition().y + offsetY + moveY);
 	this->hitbox.setSize(sf::Vector2f(this->width + sizeX, this->height + sizeY));
+	this->moveX = this->moveY = this->sizeX = this->sizeY = 0;
 }
 
 void HitboxComponent::Render(sf::RenderTarget& target)

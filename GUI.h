@@ -28,12 +28,19 @@ namespace gui {
 		sf::Color outlinehoverColor;
 		sf::Color outlineactiveColor;
 
+		//sound
+		sf::Sound BTNsound;
+		sf::SoundBuffer hoversound;
+		sf::SoundBuffer clicksound;
+		sf::Clock clock;
+		sf::Time soundDelay;
+
 	public:
 		Button(float x, float y, float width, float height,
 			sf::Font* font, std::string text, unsigned character_size,
 			sf::Color text_idle_color, sf::Color text_hover_color, sf::Color text_active_color,
 			sf::Color idleColor, sf::Color hoverColor, sf::Color activeColor,
-			sf::Color outlineidleColor = sf::Color::Transparent, sf::Color outlinehoverColor = sf::Color::Transparent, sf::Color outlineactiveColor = sf::Color::Transparent, 
+			sf::Color outlineidleColor = sf::Color::Transparent, sf::Color outlinehoverColor = sf::Color::Transparent, sf::Color outlineactiveColor = sf::Color::Transparent,
 			short unsigned id = 0
 		);
 		~Button();
@@ -104,8 +111,8 @@ namespace gui {
 		);
 		~bar();
 		//Accessor
-		const float &getValue()const;
-		const float &getMaxValue()const;
+		const float& getValue()const;
+		const float& getMaxValue()const;
 		//Modifier
 		void setPosition(float x, float y);
 		void setValue(float x);
@@ -126,10 +133,14 @@ namespace gui {
 		sf::Font* font;
 		sf::Text text;
 		sf::RectangleShape box;
+		sf::Texture* texture;
+		bool left;
 	public:
 		textbox(float x, float y, float width, float height,
 			sf::Color box_color, std::string text,
-			sf::Font* font,unsigned textsize, sf::Color text_color);
+			sf::Font* font, unsigned textsize, sf::Color text_color,
+			sf::Texture* texture = nullptr, bool left = false
+		);
 		~textbox();
 		//Accessor
 
@@ -137,6 +148,28 @@ namespace gui {
 		void settext(std::string text);
 		//function
 		void Update();
+		void Render(sf::RenderTarget& target);
+	};
+	class damageNumber
+	{
+	private:
+		float x, y;
+		float fade;
+		sf::Color textColor;
+		sf::Color OutlineTextColor;
+		sf::Font* font;
+		sf::Text text;
+		sf::Clock clock;
+		sf::Time delay;
+	public:
+		damageNumber(float x,float y,float damage,sf::Font* font,unsigned characterSize,unsigned outlineSize,
+			sf::Color textColor,sf::Color OutlineTextColor);
+		~damageNumber();
+		//Accessor
+		const bool remove();
+
+		//function
+		void Update(const float& deltaTime);
 		void Render(sf::RenderTarget& target);
 	};
 }

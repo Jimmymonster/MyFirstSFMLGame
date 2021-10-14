@@ -2,7 +2,7 @@
 
 #include "GameState.h"
 #include "EditorState.h"
-#include "SettingState.h"
+#include "HowtoPlayState.h"
 #include "GUI.h"
 
 class MainMenuState : public State
@@ -14,6 +14,10 @@ private:
     sf::Font font;
 
     std::map<std::string, gui::Button*> buttons;
+    gui::textbox* StudentID;
+
+    //bgm & sound stuff
+    sf::Music bgm;
 
     //functions
     void initVariable();
@@ -21,6 +25,7 @@ private:
     void initFonts();
     void initKeybinds();
     void initButtons();
+    void initBGM();
 
 public:
     MainMenuState(sf::RenderWindow* window, std::map<std::string, int>* supportedKeys, std::stack<State*>* states);
@@ -29,6 +34,7 @@ public:
     //functions
     void UpdateInput(const float& deltaTime);
     void UpdateBTN();
+    void UpdateBGM();
     void Update(const float& deltaTime);
     void RenderBTN(sf::RenderTarget& target);
     void Render(sf::RenderTarget* target = nullptr);

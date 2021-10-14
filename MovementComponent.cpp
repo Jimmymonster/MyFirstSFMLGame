@@ -96,12 +96,7 @@ void MovementComponent::Update(const float& deltaTime)
 	//gravity (acceleration * scale)
 	this->velocity.y += 9.80665f*3;
 	//floor
-	if (this->hitbox->getPosition().y+this->hitbox->getGlobalBounds().height >= 730.f) {
-		if (this->hitbox->getPosition().y + this->hitbox->getGlobalBounds().height > 730.f) {
-			this->hitbox->setPosition(this->hitbox->getPosition().x, this->hitbox->getPosition().y+730);
-		}
-
-	//	std::cout << this->hitbox->getPosition().y << " " << this->hitbox->getGlobalBounds().height<<std::endl;
+	if (this->hitbox->getPosition().y + this->hitbox->getGlobalBounds().height >= 730.f) {
 		this->velocity.y = 0;
 	}
 	//check if on floor

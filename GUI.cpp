@@ -45,6 +45,10 @@ gui::Button::Button(float x, float y, float width, float height,
 	this->shape.setFillColor(this->idleColor);
 	this->shape.setOutlineThickness(1.f);
 	this->shape.setOutlineColor(outlineidleColor);
+
+	//sound
+	this->hoversound.loadFromFile("Resources/Sounds/Buttons/mixkit-arcade-game-jump-coin-216.wav");
+	this->clicksound.loadFromFile("Resources/Sounds/Buttons/mixkit-select-click-1109.wav");
 }
 
 gui::Button::~Button()
@@ -98,6 +102,7 @@ void gui::Button::Update(sf::Vector2f mousePos)
 			this->buttonState = BTN_ACTIVE;
 		}
 	}
+
 	switch (this->buttonState)
 	{
 	case BTN_IDLE:
@@ -114,6 +119,11 @@ void gui::Button::Update(sf::Vector2f mousePos)
 		this->shape.setFillColor(this->activeColor);
 		this->text.setFillColor(this->text_active_color);
 		this->shape.setOutlineColor(this->outlineactiveColor);
+		if (this->clock.getElapsedTime() - this->soundDelay >= sf::seconds(0.1f)) {
+			this->BTNsound.setBuffer(this->clicksound);
+			this->BTNsound.play();
+		}
+		this->soundDelay = clock.getElapsedTime();
 		break;
 	//default:
 	//	break;
@@ -304,22 +314,35 @@ void gui::bar::Render(sf::RenderTarget& target)
 
 gui::textbox::textbox(float x, float y, float width, float height,
 	sf::Color box_color, std::string text,
-	sf::Font* font, unsigned textsize, sf::Color text_color)
-	:x(x),y(y),width(width),height(height),box_color(box_color),font(font),text_color(text_color)
+	sf::Font* font, unsigned textsize, sf::Color text_color,
+	sf::Texture* texture,bool left)
+	:x(x), y(y), width(width), height(height), box_color(box_color), font(font), text_color(text_color), texture(texture), left(left)
 {
 	this->box.setPosition(x, y);
 	this->box.setSize(sf::Vector2f(width, height));
 	this->box.setFillColor(box_color);
+	if (this->texture) {
+		this->box.setTexture(texture);
+	}
 
+	
 	this->text.setFont(*this->font);
 	this->text.setCharacterSize(textsize);
 	this->text.setFillColor(text_color);
 	this->text.setString(text);
 	sf::FloatRect textRect = this->text.getLocalBounds();
-	this->text.setOrigin(textRect.left + textRect.width / 2.f, textRect.top + textRect.height / 2.f);
-	this->text.setPosition(
-		x + (width / 2.f),
-		y + (height / 2.f));
+	if (!this->left) {
+		this->text.setOrigin(textRect.left + textRect.width / 2.f, textRect.top + textRect.height / 2.f);
+		this->text.setPosition(
+			x + (width / 2.f),
+			y + (height / 2.f));
+	}
+	else {
+		this->text.setOrigin(textRect.left , textRect.top + textRect.height / 2.f);
+		this->text.setPosition(
+			x + 10,
+			y + (height / 2.f));
+	}
 
 }
 
@@ -331,10 +354,18 @@ void gui::textbox::settext(std::string text)
 {
 	this->text.setString(text);
 	sf::FloatRect textRect = this->text.getLocalBounds();
-	this->text.setOrigin(textRect.left + textRect.width / 2.f, textRect.top + textRect.height / 2.f);
-	this->text.setPosition(
-		x + (width / 2.f),
-		y + (height / 2.f));
+	if (!this->left) {
+		this->text.setOrigin(textRect.left + textRect.width / 2.f, textRect.top + textRect.height / 2.f);
+		this->text.setPosition(
+			x + (width / 2.f),
+			y + (height / 2.f));
+	}
+	else {
+		this->text.setOrigin(textRect.left, textRect.top + textRect.height / 2.f);
+		this->text.setPosition(
+			x + 10,
+			y + (height / 2.f));
+	}
 }
 
 void gui::textbox::Update()
@@ -344,5 +375,53 @@ void gui::textbox::Update()
 void gui::textbox::Render(sf::RenderTarget& target)
 {
 	target.draw(this->box);
+	target.draw(this->text);
+}
+
+//======================================damage Number=================================================
+
+gui::damageNumber::damageNumber(float x, float y, float damage, sf::Font* font, 
+	unsigned characterSize, unsigned outlineSize,
+	sf::Color textColor, sf::Color OutlineTextColor)
+	: x(x),y(y),textColor(textColor),OutlineTextColor(OutlineTextColor),font(font)
+{
+	this->fade = 255;
+	this->delay = sf::seconds(0);
+	this->text.setString(std::to_string((int)damage));
+	this->text.setCharacterSize(characterSize);
+	this->text.setFont(*this->font);
+	this->text.setOutlineThickness(outlineSize);
+	this->text.setFillColor(textColor);
+	this->text.setOutlineColor(OutlineTextColor);
+	this->text.setPosition(x, y);
+	sf::FloatRect textRect = this->text.getLocalBounds();
+	this->text.setOrigin(textRect.left + textRect.width / 2.f, textRect.top + textRect.height / 2.f);
+}
+
+gui::damageNumber::~damageNumber()
+{
+}
+
+const bool gui::damageNumber::remove()
+{
+	if (this->fade <= 0) return true;
+	return false;
+}
+
+void gui::damageNumber::Update(const float& deltaTime)
+{
+	if (this->fade>0.f && this->clock.getElapsedTime() - this->delay >= sf::seconds(0.005)) {
+		this->textColor = sf::Color(this->textColor.r, this->textColor.g, this->textColor.b, this->fade);
+		this->OutlineTextColor = sf::Color(this->OutlineTextColor.r, this->OutlineTextColor.g, this->OutlineTextColor.b, this->fade--);
+		this->text.setFillColor(textColor);
+		this->text.setOutlineColor(OutlineTextColor);
+		this->text.setPosition(this->x,this->y);
+		this->y -= 0.05f;
+		this->delay = this->clock.getElapsedTime();
+	}
+}
+
+void gui::damageNumber::Render(sf::RenderTarget& target)
+{
 	target.draw(this->text);
 }

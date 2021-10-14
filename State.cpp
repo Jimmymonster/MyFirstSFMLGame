@@ -9,6 +9,8 @@ State::State(sf::RenderWindow* window, std::map<std::string, int>* supportedKeys
 	this->pause = false;
 	this->keytime = 0.f;
 	this->keytimeMax = 10.f;
+	this->shaking = false;
+	this->temp = sf::seconds(0.f);
 }
 
 State::~State()
@@ -40,6 +42,28 @@ void State::pauseState()
 void State::unpauseState()
 {
 	this->pause = false;
+}
+
+void State::shakeScreen()
+{
+	srand(time(0));
+	if (this->temp == sf::seconds(0.f)) {
+		this->view = this->saveView = this->window->getView();
+		this->temp = this->clock.getElapsedTime();
+		cou = 0;
+	}
+	else if (this->clock.getElapsedTime() - this->temp >= sf::seconds(0.05f)) {
+		if(cou%2==0) this->view.move(sf::Vector2f( rand() % 10, rand() % 10));
+		else this->view = this->saveView;
+		this->temp = this->clock.getElapsedTime();
+		cou++;
+	}
+	if (cou>=4) {
+		this->view = this->saveView;
+		this->temp = sf::seconds(0.f);
+		this->shaking = false;
+	}
+	this->window->setView(this->view);
 }
 
 void State::UpdateMousePositions()

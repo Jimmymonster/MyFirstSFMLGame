@@ -5,6 +5,7 @@ void Slime::initVariables()
 	this->isattacked = false;
 	this->knockback = false;
 	this->temp = false;
+	this->jump = false;
 }
 
 void Slime::initComponents()
@@ -29,7 +30,7 @@ const bool Slime::getdelay()
 void Slime::Updatedelay(const float& deltaTime)
 {
 	if (this->time < this->timeMax) {
-		this->time += 10*deltaTime;
+		this->time += 7.5*deltaTime;
 	}
 }
 
@@ -48,7 +49,7 @@ Slime::Slime(float x, float y, sf::Texture& textureSheet, sf::Vector2f scale, in
 
 	this->spriteSetPosition(x, y);
 	
-	this->createHitboxComponent(this->sprite, -20.f/3.f*scale.x, -20/3.f*scale.y, 40.f/3.f*scale.x, 35.f/3.f*scale.y);
+	this->createHitboxComponent(this->sprite, -20.f/3.f*scale.x, -20.f/3.f*scale.y, 40.f/3.f*scale.x, 35.f/3.f*scale.y);
 	this->createMovementComponent(800.f, 800.f, 400.f);
 	this->createAnimationComponent(textureSheet, scale, imgx, imgy);
 	this->createHpbar(this->sprite.getPosition().x - this->sprite.getGlobalBounds().width / 2.f, this->getHitboxGlobalbound().top - 10,scale);
@@ -57,12 +58,14 @@ Slime::Slime(float x, float y, sf::Texture& textureSheet, sf::Vector2f scale, in
 }
 Slime::~Slime()
 {
-	
+
 }
 
-void Slime::Attacked()
+void Slime::Attacked(float x,float y)
 {
 	this->isattacked = true;
+	this->knockbackX = x;
+	this->knockbackY = y;
 }
 
 void Slime::flip()
@@ -74,6 +77,11 @@ void Slime::flip()
 	else if (this->movementComponent->getState(MOVING_LEFT)) {
 		this->sprite.setScale(-this->scale.x, this->scale.y);
 	}
+}
+
+const bool Slime::getJump() const
+{
+	return this->jump;
 }
 
 void Slime::UpdateGUI()
@@ -98,39 +106,57 @@ void Slime::Update(const float& deltaTime,sf::Vector2f playerPos)
 	this->Updatedelay(deltaTime);
 	this->UpdateGUI();
 	this->movementComponent->Update(deltaTime);
+	if (!this->movementComponent->getState(MID_AIR)) {
+		this->jump = false;
+	}
 
 	if (!this->isattacked)
 		this->flip();
 	if (this->isattacked) {
 		this->time = 0;
+		if (!this->invincible) this->elapsed = this->clock.getElapsedTime();
+		this->invincible = true;
 		if (playerPos.x < this->sprite.getPosition().x) {
 			if (!this->knockback) {
-				this->movementComponent->setveclocity(sf::Vector2f(0, 0));
-				this->move(1, -500, deltaTime);
+				this->movementComponent->setveclocity(sf::Vector2f(knockbackX, -knockbackY));
+				//this->move(1, -200, deltaTime);
 				this->knockback = true;
 			}
-			if (this->animationComponent->play("JUMP", deltaTime, true)) {
+			if (!this->movementComponent->getState(MID_AIR)) {
 				this->isattacked = false;
 				this->knockback = false;
 			}
 		}
 		else {
 			if (!this->knockback) {
-				this->movementComponent->setveclocity(sf::Vector2f(0, 0));
-				this->move(-1, -500, deltaTime);
+				this->movementComponent->setveclocity(sf::Vector2f(-knockbackX, -knockbackY));
+				//this->move(-1, -200, deltaTime);
 				this->knockback = true;
 			}
-			if (this->animationComponent->play("JUMP", deltaTime, true)) {
+			if (!this->movementComponent->getState(MID_AIR)) {
 				this->isattacked = false;
 				this->knockback = false;
 			}
 		}
 	}
+	if (this->clock.getElapsedTime() - this->elapsed >= sf::seconds(0.3)) {
+		this->invincible = false;
+	}
 	this->UpdateAnimation(deltaTime);
 	if (!this->death) {
 		this->hitboxComponent->Update();
-		if (playerPos.x > this->sprite.getPosition().x && !this->movementComponent->getState(MID_AIR) && this->getdelay()) this->move(1, -310, deltaTime);
-		else if (playerPos.x < this->sprite.getPosition().x && !this->movementComponent->getState(MID_AIR) && this->getdelay()) this->move(-1, -310, deltaTime);
+		if (playerPos.x > this->sprite.getPosition().x && !this->movementComponent->getState(MID_AIR) && this->getdelay()) {
+			this->move(1, -300, deltaTime);
+			if (this->sprite.getPosition().x > 0 && this->sprite.getPosition().x < 1600) {
+				this->jump = true;
+			}
+		}
+		else if (playerPos.x < this->sprite.getPosition().x && !this->movementComponent->getState(MID_AIR) && this->getdelay()) {
+			this->move(-1, -300, deltaTime);
+			if (this->sprite.getPosition().x > 0 && this->sprite.getPosition().x < 1600) {
+				this->jump = true;
+			}
+		}
 	}
 
 	else if (this->death) {

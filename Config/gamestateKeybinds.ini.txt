@@ -4,3 +4,4 @@ JUMP1 W
 JUMP2 Space
 CROUCH S
 CLOSE Escape
+ENTER Enter

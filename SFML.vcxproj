@@ -147,39 +147,47 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="AnimationComponent.cpp" />
-    <ClCompile Include="EntityPool.cpp" />
     <ClCompile Include="GUI.cpp" />
     <ClCompile Include="EditorState.cpp" />
     <ClCompile Include="Entity.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="GameState.cpp" />
     <ClCompile Include="HitboxComponent.cpp" />
+    <ClCompile Include="HowtoPlayState.cpp" />
+    <ClCompile Include="ItemDrop.cpp" />
+    <ClCompile Include="LeaderBoard.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="MainMenuState.cpp" />
     <ClCompile Include="MovementComponent.cpp" />
+    <ClCompile Include="NameInput.cpp" />
     <ClCompile Include="PauseMenu.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="SettingState.cpp" />
     <ClCompile Include="Slime.cpp" />
     <ClCompile Include="State.cpp" />
+    <ClCompile Include="SwordWave.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AnimationComponent.h" />
-    <ClInclude Include="EntityPool.h" />
     <ClInclude Include="GUI.h" />
     <ClInclude Include="EditorState.h" />
     <ClInclude Include="Entity.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="GameState.h" />
     <ClInclude Include="HitboxComponent.h" />
+    <ClInclude Include="HowtoPlayState.h" />
     <ClInclude Include="include.h" />
+    <ClInclude Include="ItemDrop.h" />
+    <ClInclude Include="LeaderBoard.h" />
     <ClInclude Include="MainMenuState.h" />
     <ClInclude Include="MovementComponent.h" />
+    <ClInclude Include="NameInput.h" />
     <ClInclude Include="PauseMenu.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="SettingState.h" />
     <ClInclude Include="Slime.h" />
     <ClInclude Include="State.h" />
+    <ClInclude Include="SwordWave.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

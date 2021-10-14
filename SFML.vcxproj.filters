@@ -25,6 +25,9 @@
     <Filter Include="GUI">
       <UniqueIdentifier>{bb1f7e1e-8b0c-4259-8850-b185148f3651}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Entities\PlayerOnly">
+      <UniqueIdentifier>{837fe6b2-e8a7-492c-8643-d12d46ee830e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -72,8 +75,20 @@
     <ClCompile Include="Slime.cpp">
       <Filter>Entities</Filter>
     </ClCompile>
-    <ClCompile Include="EntityPool.cpp">
+    <ClCompile Include="LeaderBoard.cpp">
+      <Filter>States</Filter>
+    </ClCompile>
+    <ClCompile Include="NameInput.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="ItemDrop.cpp">
       <Filter>Entities</Filter>
+    </ClCompile>
+    <ClCompile Include="SwordWave.cpp">
+      <Filter>Entities\PlayerOnly</Filter>
+    </ClCompile>
+    <ClCompile Include="HowtoPlayState.cpp">
+      <Filter>States</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -122,8 +137,20 @@
     <ClInclude Include="Slime.h">
       <Filter>Entities</Filter>
     </ClInclude>
-    <ClInclude Include="EntityPool.h">
+    <ClInclude Include="LeaderBoard.h">
+      <Filter>States</Filter>
+    </ClInclude>
+    <ClInclude Include="NameInput.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="ItemDrop.h">
       <Filter>Entities</Filter>
+    </ClInclude>
+    <ClInclude Include="SwordWave.h">
+      <Filter>Entities\PlayerOnly</Filter>
+    </ClInclude>
+    <ClInclude Include="HowtoPlayState.h">
+      <Filter>States</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

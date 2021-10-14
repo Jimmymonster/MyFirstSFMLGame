@@ -10,22 +10,25 @@ private:
 	void initVariables();
 
 protected:
-	sf::Sprite sprite;
+		sf::Sprite sprite;
 
-	std::map<std::string,float> stat;
-	sf::Font font;
+		std::map<std::string, float> stat;
 
-	bool death;
+		sf::Font font;
 
-	HitboxComponent* hitboxComponent;
-	HitboxComponent* attackhitboxComponent;
-	MovementComponent* movementComponent;
-	AnimationComponent* animationComponent;
-	gui::bar* HPbar;
-	gui::bar* Rampagebar;
+		bool death;
+		bool invincible;
+
+		HitboxComponent* hitboxComponent;
+		MovementComponent* movementComponent;
+		AnimationComponent* animationComponent;
+		gui::bar* HPbar;
+		
+		
 public:
 	Entity();
 	virtual ~Entity();
+
 	//Component function
 	void setTexture(sf::Texture& texture);
 	void createHitboxComponent(sf::Sprite& sprite,float offset_x,float offset_y,float width,float height);
@@ -37,8 +40,8 @@ public:
 	virtual const sf::Vector2f &getPosition()const;
 	const float getstat(std::string key);
 	const bool checkDeath();
+	const bool Invincible();
 	const sf::FloatRect getHitboxGlobalbound()const;
-	const sf::FloatRect getAttackHitboxGlobalbound()const;
 	bool intersect(const sf::FloatRect& frect);
 	//Modifier
 	void setstat(std::string key, float value);

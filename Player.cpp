@@ -4,18 +4,25 @@ void Player::initVariables()
 {
 	this->attacking = false;
 	this->Isattacked = false;
-	this->attackhitboxComponent = nullptr;
+	for (int i = 0; i < 3; i++) this->attackhitboxComponent[i] = nullptr;
 	this->animationComponent = nullptr;
 	this->hitboxComponent = nullptr;
 	this->knockback = false;
 	this->finishdeath = false;
 	this->disableInput = false;
+	this->onrampage = false;
+	this->swordwaving = false;
+	this->swordwaved = false;
+	this->attackIdx = 0;
+	for (int i = 0; i < 3; i++) this->attackPlayed[i] = false;
+	this->sound.setVolume(30.f);
 }
 
 void Player::initGUI()
 {
-	this->HPbar = new gui::bar(40, 40, 200, 20, this->stat["HP"], this->stat["MAXHP"], &this->font, 26, sf::Color::Black, sf::Color::Red, sf::Color::White, true);
-	this->Rampagebar = new gui::bar(40, 61, 200, 20, 0, 100, &this->font, 26, sf::Color::Black, sf::Color::Magenta, sf::Color::White);
+	this->HPbar = new gui::bar(40, 40, 300, 30, this->stat["HP"], this->stat["MAXHP"], &this->font, 26, sf::Color::Black, sf::Color::Red, sf::Color::White, true);
+	this->Rampagebar = new gui::bar(40, 71, 300, 30, 0, 100, &this->font, 26, sf::Color::Black, sf::Color::Magenta, sf::Color::White);
+	this->swordskill = new gui::bar(0, 0, 40 , 5, this->WaveSwordCooldown.asSeconds(), this->WaveSwordCooldown.asSeconds(), &this->font, 26, sf::Color::Black, sf::Color::Blue, sf::Color::White);
 }
 
 void Player::initComponents()
@@ -27,13 +34,14 @@ void Player::initComponents()
 void Player::AddAnimations()
 {
 	this->animationComponent->addAnimation("RUN", 15.f, 25, 1, 30, 1);
-	this->animationComponent->addAnimation("JUMP", 12.f, 21, 1, 24, 1);
+	this->animationComponent->addAnimation("JUMP", 15.f, 21, 1, 24, 1);
 	this->animationComponent->addAnimation("DROP", 5.f, 8, 1, 9, 1);
 	this->animationComponent->addAnimation("CROUCH", 15.f, 30, 0, 0, 1);
 	this->animationComponent->addAnimation("SLIDE", 10.f, 31, 1, 32, 1);
 	this->animationComponent->addAnimation("DIE", 30.f, 1, 1, 7, 1);
 	this->animationComponent->addAnimation("ATTACK1", 15.f, 13, 0, 17, 0);
 	this->animationComponent->addAnimation("ATTACK2", 15.f, 18, 0, 23, 0);
+	this->animationComponent->addAnimation("WAVE_SWORD", 15.f, 18, 0, 23, 0);
 	this->animationComponent->addAnimation("ATTACK3", 15.f, 24, 0, 29, 0);
 	this->animationComponent->addAnimation("AIR_ATTACK1", 15.f, 3, 0, 6, 0);
 	this->animationComponent->addAnimation("AIR_ATTACK2", 15.f, 7, 0, 9, 0);
@@ -45,6 +53,15 @@ void Player::AddAnimations()
 	this->animationComponent->addAnimation("IDLE", 15.f, 13, 1, 16, 1);
 }
 
+void Player::initSounds()
+{
+	this->buffer["SwordMiss"].loadFromFile("Resources/Sounds/Player/Sword/mixkit-fast-sword-whoosh-2792.wav");
+	this->buffer["Walking"].loadFromFile("Resources/Sounds/Player/Walk/mixkit-footsteps-in-the-forest-ground-1230.wav");
+	this->buffer["Hurt"].loadFromFile("Resources/Sounds/Player/BeingHit/minecraft_hit_soundmp3converter.wav");
+	this->walksound.setBuffer(this->buffer["Walking"]);
+	this->walksound.setVolume(30.f);
+	//this->soundDelay["SwordMiss"] = sf::seconds(0.75f);
+}
 Player::Player(float x, float y, sf::Texture& textureSheet, sf::Vector2f scale, int imgx, int imgy,
 	float maxhp, float atk, float defense, float criRate, float cridamage)
 	: x(x),y(y),scale(scale)
@@ -59,11 +76,18 @@ Player::Player(float x, float y, sf::Texture& textureSheet, sf::Vector2f scale, 
 
 	this->initfont();
 	this->initGUI();
+	this->initSounds();
 
 //	this->setTexture(textureSheet);
+	this->flame.loadFromFile("Resources/Sprites/Player/flame.png");
+	this->flameAnima = new AnimationComponent(this->flameSprite,this->flame,sf::Vector2f(0.5f,0.5f),4,1);
+	this->flameAnima->addAnimation("FLAME", 10.f, 0, 0, 3, 0);
+
+	this->swordwavesheet.loadFromFile("Resources/Sprites/Player/SwordBeam.png");
+
 	this->spriteSetPosition(x, y);
 
-	this->createHitboxComponent(this->sprite,-15,-23,30.f,73.f);
+	this->createHitboxComponent(this->sprite,-15.f,-20.f,30.f,70.f);
 	//this->attackhitboxComponent = new HitboxComponent(this->sprite, 1000, 1000, 55.f, 100.f);
 	this->createMovementComponent(300.f, 20.f, 10.f);
 	this->createAnimationComponent(textureSheet ,scale,imgx,imgy);
@@ -73,7 +97,10 @@ Player::Player(float x, float y, sf::Texture& textureSheet, sf::Vector2f scale, 
 
 Player::~Player()
 {
-	delete this->attackhitboxComponent;
+	for (int i = 0; i < 3; i++) {
+		delete this->attackhitboxComponent[i];
+	}
+	delete this->Rampagebar;
 }
 
 //================================ function ==============================
@@ -94,33 +121,63 @@ void Player::flip() // <-- suppose to be update function
 void Player::Attacked()
 {
 	this->Isattacked = true;
+	this->invincible = true;
 }
 
 void Player::Attack()
 {
 	this->attacking = true;
 }
+
+void Player::playSound(std::string key)
+{
+	this->sound.stop();
+	this->sound.resetBuffer();
+	this->sound.setBuffer(this->buffer[key]);
+	this->sound.play();
+
+}
+void Player::swordwave()
+{
+	if (this->movementComponent->getState(MID_AIR)) return;
+	this->swordwaving = true;
+}
 //===========================================================================
 
-const float Player::getRampage() const
+const float& Player::getRampage() const
 {
 	return this->Rampagebar->getValue();
 }
 
-const bool Player::DisableInput() const
+const bool& Player::DisableInput() const
 {
 	return this->disableInput;
 }
-
+const bool& Player::onRampage()const
+{
+	return this->onrampage;
+}
+const sf::FloatRect Player::getAttackHitboxGlobalbound(int idx) const
+{
+	if (this->attackhitboxComponent[idx]) return this->attackhitboxComponent[idx]->getHitbox()->getGlobalBounds();
+	else return sf::FloatRect(0, 0, 0, 0);
+}
 void Player::setRampage(float value)
 {
 	this->Rampagebar->setValue(value);
 }
 
+
 //========================= Update stuff ====================================
 void Player::UpdateAnimation(const float& deltaTime)
 {
+	this->flameAnima->play("FLAME", deltaTime);
+
 	if (this->death) {
+		this->disableInput = true;
+		this->attacking = false;
+		for (int i = 0; i < 3; i++) this->attackhitboxComponent[i] = nullptr;
+
 		if (this->finishdeath) { 
 			this->sprite.setTextureRect(sf::IntRect(350,37,50,37));
 			return; 
@@ -137,20 +194,62 @@ void Player::UpdateAnimation(const float& deltaTime)
 	if(!Isattacked)
 		this->flip();
 
+	if (clock.getElapsedTime() - this->time2 >= sf::seconds(1.3f)) {
+		this->sprite.setColor(sf::Color::White);
+		this->invincible = false;
+	}
+	//=============================================== Sword waving =====================================================================================
+	if (this->swordwaving) {
+		if (this->elapsed - this->swordWavedelayTime >= this->WaveSwordCooldown || (this->elapsed < this->WaveSwordCooldown && this->swordWavedelayTime == sf::seconds(0.f))) {
+			this->attacking = false;
+			this->disableInput = true;
+			this->invincible = true;
+			this->swordWavedelayTime = this->elapsed;
+			this->playSound("SwordMiss");
+		}
+		if (this->disableInput) {
+			if (this->animationComponent->play("WAVE_SWORD", deltaTime, true)) {
+				this->disableInput = false;
+				this->invincible = false;
+				this->swordwaving = false;
+			}
+		}
+		if (this->elapsed - this->swordWavedelayTime >= sf::seconds(0.4f)&&!this->swordwaved) {
+			if (this->sprite.getScale().x > 0) this->swordWave = new SwordWave(this->sprite.getPosition().x, this->sprite.getPosition().y, 1000.f, this->swordwavesheet, sf::Vector2f(0.2f, 0.2f));
+			else  this->swordWave = new SwordWave(this->sprite.getPosition().x, this->sprite.getPosition().y, -1000.f, this->swordwavesheet, sf::Vector2f(-0.2f, 0.2f));
+			this->attackhitboxComponent[3] = &this->swordWave->getHitboxcomponent();
+			this->swordwaved = true;
+		}
+	}
+	
+	if (this->elapsed - this->swordWavedelayTime >= sf::seconds(3.f)) {
+		this->swordWave = nullptr;
+		this->attackhitboxComponent[3] = nullptr;
+		this->swordwaving = false;
+		this->swordwaved = false;
+	}
+	//===================================================================================================================================================
+
 	// Attacked
 	if (this->Isattacked) {
-		this->attackhitboxComponent = nullptr;
+		for(int i=0;i<3;i++) this->attackhitboxComponent[i] = nullptr;
 		this->attacking = false;
-		this->time1 = sf::seconds(0);
-		this->clock.restart();
+		this->swordwaving = false;
+		this->attackdelayTime = sf::seconds(0);
+		this->time2 = this->clock.getElapsedTime();
+
+		this->invincible = true;
+
+		this->sprite.setColor(sf::Color(0, 0, 0, 100));
 		if (this->sprite.getScale().x<0) {
 			if (!this->knockback) { // knockback variable make sure to knockback 1 time
 				this->movementComponent->setveclocity(sf::Vector2f(0, 0));
 				this->move(10, -200, deltaTime);
 				this->knockback = true;
 				this->disableInput = true;
+				this->playSound("Hurt");
 			}
-			this->attackhitboxComponent = nullptr;
+			for (int i = 0; i < 3; i++) this->attackhitboxComponent[i] = nullptr;
 			if (this->animationComponent->play("HURT", deltaTime, true)) {
 				this->Isattacked = false;
 				this->knockback = false;
@@ -163,8 +262,9 @@ void Player::UpdateAnimation(const float& deltaTime)
 				this->move(-10, -200, deltaTime);
 				this->knockback = true;
 				this->disableInput = true;
+				this->playSound("Hurt");
 			}
-			this->attackhitboxComponent = nullptr;
+			for (int i = 0; i < 3; i++) this->attackhitboxComponent[i] = nullptr;
 			if (this->animationComponent->play("HURT", deltaTime, true)) {
 				this->Isattacked = false;
 				this->knockback = false;
@@ -176,61 +276,146 @@ void Player::UpdateAnimation(const float& deltaTime)
 	else if (this->attacking) {
 		this->hitboxComponent->movepos(0, 0, 0, 0);
 		if(!this->movementComponent->getState(MID_AIR)) this->disableInput = true;
-		elapsed = clock.getElapsedTime();
 
-		if (time1 == sf::seconds(0)) time1 = elapsed;
+		if (attackdelayTime == sf::seconds(0)) {
+			this->playSound("SwordMiss");
+			attackdelayTime = elapsed;
+		}
 
 //		std::cout << this->time1.asSeconds()<<" "<< this->elapsed.asSeconds() << std::endl;
 
-		if (elapsed-time1 >= sf::seconds(0.2f)) {
-			if (sprite.getScale().x < 0) this->attackhitboxComponent = new HitboxComponent(this->sprite, -20, -55, -55.f, 100.f);
-			else this->attackhitboxComponent = new HitboxComponent(this->sprite, 20, -55, 55.f, 100.f);
+		//check if attack 1 is done
+		if (attackIdx == 0) {
+			if (elapsed - attackdelayTime >= sf::seconds(0.2f)) {
+				this->invincible = true;
+				if (sprite.getScale().x < 0) this->attackhitboxComponent[0] = new HitboxComponent(this->sprite, -20, -55, -50.f, 100.f);
+				else this->attackhitboxComponent[0] = new HitboxComponent(this->sprite, 20, -55, 50.f, 100.f);
+			}
+			if (elapsed - attackdelayTime >= sf::seconds(0.4f)) {
+				this->attackhitboxComponent[0] = nullptr;
+				this->disableInput = false;
+			}
+			if(!this->attackPlayed[0]){
+				if (this->animationComponent->play("ATTACK1", deltaTime, true)) {
+					this->attacking = false;
+					this->attackPlayed[0] = true;
+					this->invincible = false;
+				}
+			}
+			else {
+				attackdelayTime = sf::seconds(0.f);
+				this->attackIdx++;
+			}
 		}
-		if (elapsed - time1 >= sf::seconds(0.4f)) {
-			this->attackhitboxComponent = nullptr;
-			this->disableInput = false;
+		if (attackIdx == 1) {
+			if (elapsed - attackdelayTime >= sf::seconds(0.3f)) {
+				this->invincible = true;
+				if (sprite.getScale().x < 0) this->attackhitboxComponent[1] = new HitboxComponent(this->sprite, -20, -35, -52.f, 80.f);
+				else this->attackhitboxComponent[1] = new HitboxComponent(this->sprite, 20, -35, 52.f, 80.f);
+			}
+			if (elapsed - attackdelayTime >= sf::seconds(0.55f)) {
+				this->attackhitboxComponent[1] = nullptr;
+				this->disableInput = false;
+			}
+			if (!this->attackPlayed[1]) {
+				if (this->animationComponent->play("ATTACK2", deltaTime, true)) {
+					this->attacking = false;
+					this->attackPlayed[1] = true;
+					this->invincible = false;
+				}
+			}
+			else {
+				attackdelayTime = sf::seconds(0.f);
+				this->attackIdx++;
+			}
 		}
-		//check if attack is done
-		if (this->animationComponent->play("ATTACK1", deltaTime, true)) {
-			this->attacking = false;
-			this->time1 = sf::seconds(0);
+		if (attackIdx == 2) {
+			if (elapsed - attackdelayTime >= sf::seconds(0.2f)) {
+				this->invincible = true;
+				if (sprite.getScale().x < 0) this->attackhitboxComponent[2] = new HitboxComponent(this->sprite, 60, -10, -140.f, 55.f);
+				else this->attackhitboxComponent[2] = new HitboxComponent(this->sprite, -60, -10, 140.f, 55.f);
+			}
+			if (elapsed - attackdelayTime >= sf::seconds(0.4f)) {
+				this->attackhitboxComponent[2] = nullptr;
+				this->disableInput = false;
+			}
+			if (!this->attackPlayed[2]) {
+				if (this->animationComponent->play("ATTACK3", deltaTime, true)) {
+					this->attacking = false;
+					this->attackPlayed[2] = true;
+					this->invincible = false;
+				}
+			}
+			else {
+				this->attacking = false;
+				attackdelayTime = sf::seconds(0.f);
+				this->attackIdx = 0;
+				for (int i = 0; i < 3; i++) this->attackPlayed[i] = false;
+			}
 		}
 	}
+	if (elapsed - attackdelayTime >= sf::seconds(0.9f) && !this->attacking) {
+		attackdelayTime = sf::seconds(0.f);
+		this->attackIdx = 0;
+		for (int i = 0; i < 3; i++) this->attackPlayed[i] = false;
+	}
+
 	//================================ not priority animation =================================
 	if (this->movementComponent->getState(CROUCH)) {
 		this->hitboxComponent->movepos(0, 20, 0, -20);
 		this->animationComponent->play("CROUCH", deltaTime);
+		this->flameSprite.setPosition(this->sprite.getPosition().x, this->sprite.getPosition().y);
 	}
 	else if (this->movementComponent->getState(IDLE)) {
 		this->hitboxComponent->movepos(0, 0, 0, 0);
 		this->animationComponent->play("IDLE", deltaTime);
+		this->flameSprite.setPosition(this->sprite.getPosition().x, this->sprite.getPosition().y - 25);
 	}
 	else if (this->movementComponent->getState(DROP)) {
 		this->hitboxComponent->movepos(0, 0, 0, 0);
 		this->animationComponent->play("DROP", deltaTime);
+		this->flameSprite.setPosition(this->sprite.getPosition().x, this->sprite.getPosition().y - 25);
 	}
 	else if (this->movementComponent->getState(JUMP)) {
 		this->hitboxComponent->movepos(0, 0, 0, 0);
 		this->animationComponent->play("JUMP", deltaTime);
+		this->flameSprite.setPosition(this->sprite.getPosition().x, this->sprite.getPosition().y - 25);
 	}
 	else if (this->movementComponent->getState(MOVING_RIGHT)) {
 		this->animationComponent->play("RUN", deltaTime, this->movementComponent->getVeclocity().x, this->movementComponent->getMaxVeclocity());
+		this->flameSprite.setPosition(this->sprite.getPosition().x+10, this->sprite.getPosition().y - 25);
+
+		if (this->walksound.getStatus() != sf::Sound::Playing) {
+			this->walksound.play();
+		}
 	}
 	else if (this->movementComponent->getState(MOVING_LEFT)) {
 		this->animationComponent->play("RUN", deltaTime, this->movementComponent->getVeclocity().x, this->movementComponent->getMaxVeclocity());
-	}
+		this->flameSprite.setPosition(this->sprite.getPosition().x-10, this->sprite.getPosition().y - 25);
 
+		if (this->walksound.getStatus() != sf::Sound::Playing) {
+			this->walksound.play();
+		}
+	}
+	//Sound
+	if ((!this->movementComponent->getState(MOVING_LEFT) && !this->movementComponent->getState(MOVING_RIGHT)) || this->movementComponent->getState(MID_AIR) || this->checkDeath()) this->walksound.stop();
 }
 
 void Player::UpdateGUI(const float& deltaTime)
 {
 	this->HPbar->Update();
 	this->Rampagebar->Update();
+	if (this->elapsed - this->swordWavedelayTime <= this->WaveSwordCooldown && this->swordWavedelayTime != sf::seconds(0.f)) {
+		this->swordskill->setValue((this->elapsed-this->swordWavedelayTime).asSeconds());
+	}
+	this->swordskill->setPosition(this->getHitboxGlobalbound().left - 5, this->getHitboxGlobalbound().top - 15);
+	this->swordskill->Update();
 }
 
 void Player::Update(const float& deltaTime)
 {
 	this->movementComponent->Update(deltaTime);
+	this->elapsed = clock.getElapsedTime();
 	this->UpdateGUI(deltaTime);
 	//Check collistion for player
 	if (this->sprite.getPosition().x < 30) {
@@ -243,8 +428,62 @@ void Player::Update(const float& deltaTime)
 
 	this->UpdateAnimation(deltaTime);
 
-	this->hitboxComponent->Update();
-	if (this->attackhitboxComponent != nullptr) {
-		this->attackhitboxComponent->Update();
+	//============================Rampage stuff==================================
+	if (this->getRampage() >= 100) {
+		this->onrampage = true;
 	}
+	if (this->onrampage) {
+		this->invincible = true;
+		if (this->rampageDelay == sf::seconds(0.f)) {
+		//	this->saveAtk = this->stat["ATK"];
+		//	this->stat["ATK"] = 999999;
+		}
+		if (clock.getElapsedTime() - this->rampageDelay >= sf::seconds(0.1f)) {
+			this->rampageDelay = this->clock.getElapsedTime();
+			this->setRampage(this->getRampage() - 0.5);
+		}
+		if (this->getRampage() <= 0) {
+		//	this->stat["ATK"] = saveAtk;
+			this->rampageDelay = sf::seconds(0.f);
+			this->setRampage(0);
+			this->invincible = false;
+			this->onrampage = false;
+		}
+	}
+	//======================================================================
+	this->hitboxComponent->Update();
+	
+	if (this->swordWave) {
+		this->swordWave->Update(deltaTime);
+	}
+
+	for (int i = 0; i < 4; i++) {
+		if (this->attackhitboxComponent[i] != nullptr) {
+			this->attackhitboxComponent[i]->Update();
+		}
+	}
+	
+}
+
+void Player::Render(sf::RenderTarget& target, bool showhitbox)
+{
+	if(this->onrampage) target.draw(this->flameSprite);
+	target.draw(this->sprite);
+
+	if (this->hitboxComponent && showhitbox)
+		hitboxComponent->Render(target);
+
+	for (int i = 0; i < 4; i++) {
+		if (this->attackhitboxComponent[i] && showhitbox)
+			attackhitboxComponent[i]->Render(target);
+	}
+	if (this->swordWave) this->swordWave->Render(target);
+
+	if (this->HPbar)
+		HPbar->Render(target);
+
+	if (this->Rampagebar)
+		Rampagebar->Render(target);
+	if (this->swordskill && this->elapsed - this->swordWavedelayTime < this->WaveSwordCooldown && this->swordWavedelayTime != sf::seconds(0.f) )
+		this->swordskill->Render(target);
 }

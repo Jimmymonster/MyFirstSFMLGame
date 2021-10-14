@@ -16,6 +16,8 @@ private:
 	bool isattacked;
 	bool knockback;
 	bool temp;
+	bool jump;
+	float knockbackX, knockbackY;
 
 	//function
 	void initVariables();
@@ -28,9 +30,13 @@ public:
 		float maxhp, float atk, float defense, float criRate, float cridamage);
     virtual ~Slime();
 	//function
-	void Attacked();
+	void Attacked(float x, float y);
 	void flip();
+	//Accessor
+	const bool getJump() const;
 
+	// Modifier
+	
 	//Update stuff
 	void UpdateGUI();
 	void UpdateAnimation(const float& deltaTime);

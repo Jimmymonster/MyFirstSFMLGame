@@ -6,6 +6,7 @@ void Entity::initVariables()
 	this->movementComponent = nullptr;
 	this->animationComponent = nullptr;
 	this->death = false;
+	this->invincible = false;
 }
 
 Entity::Entity()
@@ -74,14 +75,13 @@ const bool Entity::checkDeath()
 	}
 	return false;
 }
+const bool Entity::Invincible()
+{
+	return this->invincible;
+}
 const sf::FloatRect Entity::getHitboxGlobalbound() const
 {
 	if (this->hitboxComponent) return this->hitboxComponent->getHitbox()->getGlobalBounds();
-	else return sf::FloatRect(0, 0, 0, 0);
-}
-const sf::FloatRect Entity::getAttackHitboxGlobalbound() const
-{
-	if (this->attackhitboxComponent) return this->attackhitboxComponent->getHitbox()->getGlobalBounds();
 	else return sf::FloatRect(0, 0, 0, 0);
 }
 bool Entity::intersect(const sf::FloatRect& frect)
@@ -126,12 +126,6 @@ void Entity::Render(sf::RenderTarget& target, bool showhitbox)
 	if (this->hitboxComponent && showhitbox)
 		hitboxComponent->Render(target);
 
-	if (this->attackhitboxComponent && showhitbox)
-		attackhitboxComponent->Render(target);
-
 	if (this->HPbar) 
 		HPbar->Render(target);
-
-	if (this->Rampagebar)
-		Rampagebar->Render(target);
 }

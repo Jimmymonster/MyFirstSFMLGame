@@ -49,8 +49,13 @@ void MainMenuState::initButtons()
 		sf::Color::White, sf::Color::White, sf::Color::White,
 		sf::Color(70, 70, 70, 200), sf::Color(150, 150, 150, 255), sf::Color(20, 20, 20, 200));*/
 
-	this->buttons["LEADERBOARD_STATE_BTN"] = new gui::Button(70.f, 500.f, 300.f, 75.f,
+	this->buttons["LEADERBOARD_STATE_BTN"] = new gui::Button(70.f, 450.f, 300.f, 75.f,
 		&this->font, "Leader Board", 50,
+		sf::Color::White, sf::Color::White, sf::Color::White,
+		sf::Color(70, 70, 70, 200), sf::Color(150, 150, 150, 255), sf::Color(20, 20, 20, 200));
+
+	this->buttons["HOWTOPLAY_STATE_BTN"] = new gui::Button(70.f, 550.f, 300.f, 75.f,
+		&this->font, "How to play", 50,
 		sf::Color::White, sf::Color::White, sf::Color::White,
 		sf::Color(70, 70, 70, 200), sf::Color(150, 150, 150, 255), sf::Color(20, 20, 20, 200));
 
@@ -60,13 +65,28 @@ void MainMenuState::initButtons()
 		sf::Color(70, 70, 70, 200), sf::Color(150, 150, 150, 255), sf::Color(20, 20, 20, 200));
 }
 
-MainMenuState::MainMenuState(sf::RenderWindow* window, std::map<std::string, int>* supportedKeys, std::stack<State*>* states) : State(window, supportedKeys,states)
+void MainMenuState::initBGM()
+{
+	if (!this->bgm.openFromFile("Resources/Sounds/Mainmenu/Komiku_-_09_-_Glouglou.wav")) {
+		throw("CANNOT LOAD BGM IN MAINMENU STATE");
+	}
+	this->bgm.setVolume(40.f);
+	this->bgm.setLoop(true);
+	this->bgm.play();
+}
+
+MainMenuState::MainMenuState(sf::RenderWindow* window, std::map<std::string, int>* supportedKeys, std::stack<State*>* states) 
+	: State(window, supportedKeys,states)
 {
 	this->initVariable();
 	this->initFonts();
 	this->initKeybinds();
 	this->initButtons();
 	this->initBackground();
+	this->initBGM();
+	this->StudentID = new gui::textbox(1200, 80, 200, 50, sf::Color::Transparent,
+		"64010324	Thanapob Parinyarat",
+		&this->font, 50, sf::Color::Black);
 }
 
 MainMenuState::~MainMenuState()
@@ -74,6 +94,7 @@ MainMenuState::~MainMenuState()
 	for (auto it = this->buttons.begin(); it != this->buttons.end(); ++it) {
 		delete it->second;
 	}
+	
 }
 
 //functions
@@ -92,6 +113,7 @@ void MainMenuState::UpdateBTN()
 
 	if (this->buttons["GAME_STATE_BTN"]->isPressed()) {
 		this->states->push(new GameState(this->window, this->supportedKeys,this->states));
+		this->bgm.stop();
 	}
 
 /*	if (this->buttons["Setting_STATE_BTN"]->isPressed()) {
@@ -102,8 +124,23 @@ void MainMenuState::UpdateBTN()
 		this->states->push(new EditorState(this->window, this->supportedKeys, this->states));
 	}*/
 
+	if (this->buttons["LEADERBOARD_STATE_BTN"]->isPressed()) {
+		this->states->push(new LeaderBoard(this->window, this->supportedKeys, this->states));
+	}
+
+	if (this->buttons["HOWTOPLAY_STATE_BTN"]->isPressed()) {
+		this->states->push(new HowtoPlayState(this->window, this->supportedKeys, this->states));
+	}
+
 	if (this->buttons["EXIT_STATE_BTN"]->isPressed()) {
 		this->endState();
+	}
+}
+
+void MainMenuState::UpdateBGM()
+{
+	if (this->bgm.getStatus() == this->bgm.Stopped) {
+		this->bgm.play();
 	}
 }
 
@@ -111,7 +148,7 @@ void MainMenuState::Update(const float& deltaTime)
 {
 	this->UpdateMousePositions();
 	this->UpdateInput(deltaTime);
-
+	this->UpdateBGM();
 	this->UpdateBTN();
 }
 
@@ -130,7 +167,7 @@ void MainMenuState::Render(sf::RenderTarget* target)
 	target->draw(this->background);
 
 	this->RenderBTN(*target);
-
+	this->StudentID->Render(*target);
 	//temporary check for mouse position
 	/*sf::Text mouseText;
 	mouseText.setPosition(this->mousePosView.x+10,this->mousePosView.y);
