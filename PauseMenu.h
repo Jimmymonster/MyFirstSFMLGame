@@ -7,6 +7,8 @@ private:
 	sf::Font& font;
 	sf::Text pauseMenuText;
 
+	sf::Texture texture;
+
 	sf::RectangleShape background;
 	sf::RectangleShape container;
 

@@ -12,9 +12,7 @@ private:
     sf::Texture backgroundTexture;
 
     AnimationComponent* animationComponent[3];
-    sf::Texture textureSheet;
-    sf::Texture Swordwave;
-    sf::Sprite sprite[4];
+    sf::Sprite sprite[5];
     sf::RectangleShape squre;
 
     std::map<std::string, gui::textbox*> text;

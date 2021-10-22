@@ -15,7 +15,7 @@ void MainMenuState::initBackground()
 
 void MainMenuState::initFonts()
 {
-	if (!this->font.loadFromFile("Fonts/angsana.ttc")) {
+	if (!this->font.loadFromFile("Fonts/Minecraft.ttf")) {
 		throw("ERROR::MAINMENUSTATE::COULD NOT LOAD FONT");
 	}
 }
@@ -34,10 +34,9 @@ void MainMenuState::initKeybinds()
 
 void MainMenuState::initButtons()
 {
-	this->buttons["GAME_STATE_BTN"] = new gui::Button(70.f, 350.f, 300.f, 75.f,
-		&this->font, "Start Game",50,
-		sf::Color::White, sf::Color::White, sf::Color::White,
-		sf::Color(70, 70, 70, 200), sf::Color(150, 150, 150, 255), sf::Color(20, 20, 20, 200));
+	this->buttons["GAME_STATE_BTN"] = new gui::ButtonForMainmenu(110.f, 300.f, 300.f, 75.f,
+		&this->font, "Start Game",30,
+		sf::Color::White, 40);
 
 /*	this->buttons["Setting_STATE_BTN"] = new gui::Button(70.f, 450.f, 300.f, 75.f,
 		&this->font, "Settings",50,
@@ -49,34 +48,31 @@ void MainMenuState::initButtons()
 		sf::Color::White, sf::Color::White, sf::Color::White,
 		sf::Color(70, 70, 70, 200), sf::Color(150, 150, 150, 255), sf::Color(20, 20, 20, 200));*/
 
-	this->buttons["LEADERBOARD_STATE_BTN"] = new gui::Button(70.f, 450.f, 300.f, 75.f,
-		&this->font, "Leader Board", 50,
-		sf::Color::White, sf::Color::White, sf::Color::White,
-		sf::Color(70, 70, 70, 200), sf::Color(150, 150, 150, 255), sf::Color(20, 20, 20, 200));
+	this->buttons["LEADERBOARD_STATE_BTN"] = new gui::ButtonForMainmenu(110.f, 400.f, 300.f, 75.f,
+		&this->font, "Leader Board", 30,
+		sf::Color::White,40);
 
-	this->buttons["HOWTOPLAY_STATE_BTN"] = new gui::Button(70.f, 550.f, 300.f, 75.f,
-		&this->font, "How to play", 50,
-		sf::Color::White, sf::Color::White, sf::Color::White,
-		sf::Color(70, 70, 70, 200), sf::Color(150, 150, 150, 255), sf::Color(20, 20, 20, 200));
+	this->buttons["HOWTOPLAY_STATE_BTN"] = new gui::ButtonForMainmenu(110.f, 500.f, 300.f, 75.f,
+		&this->font, "How to play", 30,
+		sf::Color::White, 40);
 
-	this->buttons["EXIT_STATE_BTN"] = new gui::Button(70.f, 650.f, 300.f, 75.f,
-		&this->font, "Quit",50,
-		sf::Color::White, sf::Color::White, sf::Color::White,
-		sf::Color(70, 70, 70, 200), sf::Color(150, 150, 150, 255), sf::Color(20, 20, 20, 200));
+	this->buttons["EXIT_STATE_BTN"] = new gui::ButtonForMainmenu(110.f, 600.f, 300.f, 75.f,
+		&this->font, "Quit",30,
+		sf::Color::White, 40);
 }
 
 void MainMenuState::initBGM()
 {
-	if (!this->bgm.openFromFile("Resources/Sounds/Mainmenu/Komiku_-_09_-_Glouglou.wav")) {
+	if (!this->bgm.openFromFile("Resources/Sounds/Mainmenu/Mili-Vulnerability.wav")) {
 		throw("CANNOT LOAD BGM IN MAINMENU STATE");
 	}
-	this->bgm.setVolume(40.f);
+	this->bgm.setVolume(30.f);
 	this->bgm.setLoop(true);
 	this->bgm.play();
 }
 
-MainMenuState::MainMenuState(sf::RenderWindow* window, std::map<std::string, int>* supportedKeys, std::stack<State*>* states) 
-	: State(window, supportedKeys,states)
+MainMenuState::MainMenuState(sf::RenderWindow* window, std::map<std::string, int>* supportedKeys, std::stack<State*>* states)
+	: State(window, supportedKeys, states)
 {
 	this->initVariable();
 	this->initFonts();
@@ -84,11 +80,7 @@ MainMenuState::MainMenuState(sf::RenderWindow* window, std::map<std::string, int
 	this->initButtons();
 	this->initBackground();
 	this->initBGM();
-	this->StudentID = new gui::textbox(1200, 80, 200, 50, sf::Color::Transparent,
-		"64010324	Thanapob Parinyarat",
-		&this->font, 50, sf::Color::Black);
 }
-
 MainMenuState::~MainMenuState()
 {
 	for (auto it = this->buttons.begin(); it != this->buttons.end(); ++it) {
@@ -144,6 +136,7 @@ void MainMenuState::UpdateBGM()
 	}
 }
 
+
 void MainMenuState::Update(const float& deltaTime)
 {
 	this->UpdateMousePositions();
@@ -167,7 +160,9 @@ void MainMenuState::Render(sf::RenderTarget* target)
 	target->draw(this->background);
 
 	this->RenderBTN(*target);
-	this->StudentID->Render(*target);
+
+
+	
 	//temporary check for mouse position
 	/*sf::Text mouseText;
 	mouseText.setPosition(this->mousePosView.x+10,this->mousePosView.y);

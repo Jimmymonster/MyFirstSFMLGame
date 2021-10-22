@@ -1,10 +1,11 @@
 #include "GUI.h"
 
 gui::Button::Button(float x, float y, float width, float height,
-	sf::Font* font, std::string text,unsigned character_size,
+	sf::Font* font, std::string text, unsigned character_size,
 	sf::Color text_idle_color, sf::Color text_hover_color, sf::Color text_active_color,
 	sf::Color idleColor, sf::Color hoverColor, sf::Color activeColor,
 	sf::Color outlineidleColor, sf::Color outlinehoverColor, sf::Color outlineactiveColor,
+	sf::Texture* texture,
 	short unsigned id
 	)
 {
@@ -42,12 +43,16 @@ gui::Button::Button(float x, float y, float width, float height,
 	this->outlinehoverColor = outlinehoverColor;
 	this->outlineactiveColor = outlineactiveColor;
 	
+	//this->texture.loadFromFile("Resources/UI/Btn.png");
 	this->shape.setFillColor(this->idleColor);
 	this->shape.setOutlineThickness(1.f);
 	this->shape.setOutlineColor(outlineidleColor);
+	if (texture) {
+		this->shape.setTexture(texture);
+	}
 
 	//sound
-	this->hoversound.loadFromFile("Resources/Sounds/Buttons/mixkit-arcade-game-jump-coin-216.wav");
+	//this->hoversound.loadFromFile("Resources/Sounds/Buttons/mixkit-arcade-game-jump-coin-216.wav");
 	this->clicksound.loadFromFile("Resources/Sounds/Buttons/mixkit-select-click-1109.wav");
 }
 
@@ -136,6 +141,94 @@ void gui::Button::Render(sf::RenderTarget& target)
 	target.draw(this->text);
 }
 
+gui::ButtonForMainmenu::ButtonForMainmenu(float x, float y, float width, float height, sf::Font* font, std::string text, unsigned character_size, sf::Color text_idle_color, unsigned hover_size)
+	:font(font),text_idle_color(text_idle_color),character_size(character_size),hover_size(hover_size)
+{
+	this->hover = false;
+	this->pressed = false;
+	this->buttonState = BTN_IDLE;
+
+	this->glow.loadFromFile("Resources/UI/glow.png");
+	this->shape.setPosition(sf::Vector2f(x-150, y+10));
+	this->shape.setSize(sf::Vector2f(width+200, height));
+	this->shape.setFillColor(sf::Color(255,255,255,0));
+	this->shape.setTexture(&glow);
+
+	this->font = font;
+	this->text.setFont(*this->font);
+	this->text.setString(text);
+	this->text.setFillColor(text_idle_color);
+	this->text.setCharacterSize(character_size);
+	this->text_idle_color = text_idle_color;
+	sf::FloatRect textRect = this->text.getLocalBounds();
+	this->text.setOrigin(textRect.left, textRect.top + textRect.height / 2.f);
+	this->text.setPosition(
+		x ,
+		y + (height / 2.f));
+
+	this->clicksound.loadFromFile("Resources/Sounds/Buttons/mixkit-select-click-1109.wav");
+}
+
+gui::ButtonForMainmenu::~ButtonForMainmenu()
+{
+}
+
+const bool gui::ButtonForMainmenu::isPressed() const
+{
+	if (this->buttonState == BTN_ACTIVE) {
+		return true;
+	}
+	return false;
+}
+
+void gui::ButtonForMainmenu::Update(sf::Vector2f mousePos)
+{
+	//Update booleans for hover and pressed
+
+	//Idle
+	this->buttonState = BTN_IDLE;
+
+	//Hover
+	if (this->shape.getGlobalBounds().contains(mousePos)) {
+		this->buttonState = BTN_HOVER;
+
+		//Click
+		if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
+			this->buttonState = BTN_ACTIVE;
+		}
+	}
+
+	switch (this->buttonState)
+	{
+	case BTN_IDLE:
+		this->text.setFillColor(this->text_idle_color);
+		this->text.setCharacterSize(character_size);
+		this->shape.setFillColor(sf::Color(255, 255, 255, 0));
+		break;
+	case BTN_HOVER:
+		this->text.setCharacterSize(hover_size);
+		this->shape.setFillColor(sf::Color(255, 255, 255, 120));
+		break;
+	case BTN_ACTIVE:
+		
+		if (this->clock.getElapsedTime() - this->soundDelay >= sf::seconds(0.1f)) {
+			this->BTNsound.setBuffer(this->clicksound);
+			this->BTNsound.play();
+		}
+		this->soundDelay = clock.getElapsedTime();
+		this->text.setCharacterSize(character_size);
+		break;
+		//default:
+		//	break;
+	}
+}
+
+void gui::ButtonForMainmenu::Render(sf::RenderTarget& target)
+{
+	target.draw(this->shape);
+	target.draw(this->text);
+}
+
 
 //=============================  DROP DOWN LIST  ===================================
 
@@ -159,6 +252,7 @@ gui::dropdownlist::dropdownlist(float x,float y,float width,float height,
 				sf::Color::White, sf::Color::White, sf::Color::White,
 				sf::Color(70, 70, 70, 200), sf::Color(150, 150, 150, 200), sf::Color(20, 20, 20, 200),
 				sf::Color(255, 255, 255, 0), sf::Color(255, 255, 255, 0), sf::Color(20, 20, 20, 0),
+				nullptr,
 				i
 			));
 	}
@@ -225,10 +319,10 @@ void gui::dropdownlist::Render(sf::RenderTarget& target)
 
 //========================== BAR ===========================
 
-gui::bar::bar(float x, float y, float width, float height,
+gui::bar::bar(float &x, float &y, float width, float height,
 	float value, float Max_value, 
 	sf::Font* font,unsigned textsize, sf::Color text_color,
-	sf::Color value_color, sf::Color Max_value_color, bool showtext
+	sf::Color value_color, sf::Color Max_value_color, sf::Texture* texture, bool showtext
 )
 	:value_color(value_color),Max_value_color(Max_value_color),value(value),Max_value(Max_value),width(width),height(height),x(x),y(y),showtext(showtext)
 {
@@ -249,9 +343,16 @@ gui::bar::bar(float x, float y, float width, float height,
 	this->value_shape.setFillColor(this->value_color);
 	this->value_shape.setSize(sf::Vector2f(width*this->percent,height));
 
-	this->Max_value_shape.setPosition(x + this->percent * width, y);
+	this->Max_value_shape.setPosition(x , y);
 	this->Max_value_shape.setFillColor(this->Max_value_color);
-	this->Max_value_shape.setSize(sf::Vector2f(width*(1-this->percent),height));
+	this->Max_value_shape.setSize(sf::Vector2f(width,height));
+
+	if (texture) {
+		this->texture.setTexture(texture);
+		this->texture.setPosition(this->x, this->y-height*0.25);
+		this->texture.setSize(sf::Vector2f(width, height*1.5));
+		
+	}
 }
 
 gui::bar::~bar()
@@ -266,13 +367,6 @@ const float &gui::bar::getValue() const
 const float &gui::bar::getMaxValue() const
 {
 	return this->Max_value;
-}
-
-void gui::bar::setPosition(float x, float y)
-{
-	this->value_shape.setPosition(x, y);
-	this->x = x;
-	this->y = y;
 }
 
 void gui::bar::setValue(float x)
@@ -290,9 +384,10 @@ void gui::bar::Update()
 	if (this->value <= 0) this->value = 0;
 	if (this->value > this->Max_value) this->value = this->Max_value;
 	this->percent = this->value / this->Max_value;
+	this->value_shape.setPosition(this->x, this->y);
 	this->value_shape.setSize(sf::Vector2f(this->width * this->percent, this->height));
-	this->Max_value_shape.setSize(sf::Vector2f(this->width * (1 - this->percent), this->height));
-	this->Max_value_shape.setPosition(this->x + this->percent * width, this->y);
+	this->Max_value_shape.setSize(sf::Vector2f(this->width , this->height));
+	this->Max_value_shape.setPosition(this->x , this->y);
 
 	this->text.setString(std::to_string(int(value)) + "/" + std::to_string(int(Max_value)));
 	sf::FloatRect textRect = this->text.getLocalBounds();
@@ -304,8 +399,9 @@ void gui::bar::Update()
 
 void gui::bar::Render(sf::RenderTarget& target)
 {
-	target.draw(this->value_shape);
 	target.draw(this->Max_value_shape);
+	target.draw(this->value_shape);
+	target.draw(this->texture);
 	if(this->showtext)
 		target.draw(this->text);
 }
@@ -315,8 +411,9 @@ void gui::bar::Render(sf::RenderTarget& target)
 gui::textbox::textbox(float x, float y, float width, float height,
 	sf::Color box_color, std::string text,
 	sf::Font* font, unsigned textsize, sf::Color text_color,
-	sf::Texture* texture,bool left)
-	:x(x), y(y), width(width), height(height), box_color(box_color), font(font), text_color(text_color), texture(texture), left(left)
+	sf::Texture* texture,bool left,
+	sf::Color Outlinecolor, float outlineSize)
+	:x(x), y(y), width(width), height(height), box_color(box_color), font(font), text_color(text_color), texture(texture), left(left),Outlinecolor(Outlinecolor)
 {
 	this->box.setPosition(x, y);
 	this->box.setSize(sf::Vector2f(width, height));
@@ -330,6 +427,8 @@ gui::textbox::textbox(float x, float y, float width, float height,
 	this->text.setCharacterSize(textsize);
 	this->text.setFillColor(text_color);
 	this->text.setString(text);
+	this->text.setOutlineColor(Outlinecolor);
+	this->text.setOutlineThickness(outlineSize);
 	sf::FloatRect textRect = this->text.getLocalBounds();
 	if (!this->left) {
 		this->text.setOrigin(textRect.left + textRect.width / 2.f, textRect.top + textRect.height / 2.f);
@@ -425,3 +524,4 @@ void gui::damageNumber::Render(sf::RenderTarget& target)
 {
 	target.draw(this->text);
 }
+

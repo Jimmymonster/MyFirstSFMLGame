@@ -22,6 +22,7 @@ private:
 	float moveY;
 	float sizeX;
 	float sizeY;
+	bool floor = true;
 
 public:
 	HitboxComponent(sf::Sprite& sprite,
@@ -33,6 +34,8 @@ public:
 
 	//Modifier
 	void setpos(float x, float y);
+	void rotate(float degree);
+	void setcenter(); //for sword fall
 	//function
 	bool checkIntersect(const sf::FloatRect& frect);
 	void movepos(float x, float y,float sizeX,float sizeY);

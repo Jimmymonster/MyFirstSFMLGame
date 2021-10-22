@@ -21,7 +21,6 @@ sf::RectangleShape* HitboxComponent::getHitbox()
 	return &this->hitbox;
 }
 
-
 bool HitboxComponent::checkIntersect(const sf::FloatRect& frect)
 {
 	return this->hitbox.getGlobalBounds().intersects(frect);
@@ -40,10 +39,21 @@ void HitboxComponent::setpos(float x, float y)
 	this->hitbox.setPosition(x, y);
 }
 
+void HitboxComponent::Render(sf::RenderTarget& target)
+{
+	target.draw(this->hitbox);
+}
+
+void HitboxComponent::setcenter()
+{
+	this->floor = false;
+	this->hitbox.setOrigin(this->width / 2.f, this->height / 2.f);
+}
+
 void HitboxComponent::Update()
 {
 	//bug fix if my entity struck on floor
-	if (this->hitbox.getPosition().y + this->hitbox.getGlobalBounds().height > 735.f) {
+	if (this->hitbox.getPosition().y + this->hitbox.getGlobalBounds().height > 735.f && this->floor) {
 		this->sprite.setPosition(this->sprite.getPosition().x,730.f - height - offsetX - moveX);
 	}
 	//========================
@@ -52,7 +62,7 @@ void HitboxComponent::Update()
 	this->moveX = this->moveY = this->sizeX = this->sizeY = 0;
 }
 
-void HitboxComponent::Render(sf::RenderTarget& target)
+void HitboxComponent::rotate(float degree)
 {
-	target.draw(this->hitbox);
+	this->hitbox.rotate(degree);
 }

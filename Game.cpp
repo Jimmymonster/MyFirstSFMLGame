@@ -56,13 +56,26 @@ void Game::initializeStates()
 {
 	this->states.push(new MainMenuState(this->window,&this->supportedKeys,&this->states));
 }
-
+void Game::initMouse()
+{
+	this->MouseTexture.loadFromFile("Resources/UI/Mouse.png");
+	this->Mouse.setTexture(&this->MouseTexture);
+	this->Mouse.setSize(sf::Vector2f(40, 40));
+}
 Game::Game()
 {
 	this->initializeVariables();
 	this->initializeWindow();
 	this->initKeys();
 	this->initializeStates();
+	this->initMouse();
+	this->window->setMouseCursorVisible(false);
+	this->font.loadFromFile("Fonts/Minecraft.ttf");
+	this->StudentID = new gui::textbox(1100, 100, 200, 30, sf::Color::Transparent,
+		"64010324	Thanapob Parinyarat",
+		&this->font, 30, sf::Color::White,
+		nullptr, false,
+		sf::Color::Black,3.f);
 }
 
 Game::~Game()
@@ -107,6 +120,13 @@ void Game::pollEvents()
 
 	}
 }
+void Game::UpdateMouse()
+{
+	sf::Vector2f mousePosView;
+	mousePosView = this->window->mapPixelToCoords(sf::Mouse::getPosition(*this->window));
+	this->Mouse.setPosition(mousePosView.x, mousePosView.y);
+}
+
 void Game::Update()
 {
 	/*
@@ -116,6 +136,7 @@ void Game::Update()
 
 	if (!this->states.empty()) {
 		this->states.top()->Update(this->deltaTime);
+		this->UpdateMouse();
 		//getQuit
 		if (this->states.top()->getQuit()) {
 			this->states.top()->endState();
@@ -140,8 +161,12 @@ void Game::Render()
 	this->window->clear(sf::Color::Black);
 
 	//Draw game objects
-	if (!this->states.empty())
+	if (!this->states.empty()) {
 		this->states.top()->Render();
+
+		window->draw(this->Mouse);
+		this->StudentID->Render(*window);
+	}
 
 	this->window->display();
 }

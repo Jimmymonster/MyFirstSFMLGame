@@ -22,8 +22,9 @@ HitboxComponent& SwordWave::getHitboxcomponent()
 void SwordWave::Update(const float& deltaTime)
 {
 	this->animationComponent->play("slash",deltaTime);
-	this->movementComponent->Update(deltaTime);
 	this->movementComponent->setveclocity(sf::Vector2f(this->velocity, -9.80665f * 3.f));
+	this->movementComponent->Update(deltaTime);
+	
 }
 
 void SwordWave::Render(sf::RenderTarget& target)

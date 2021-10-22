@@ -7,6 +7,7 @@ private:
 	//variables
 	sf::Vector2f scale;
 	float x, y;
+	float barx, bary;
 	float time, timeMax;
 
 	sf::Clock clock;

@@ -90,6 +90,9 @@
     <ClCompile Include="HowtoPlayState.cpp">
       <Filter>States</Filter>
     </ClCompile>
+    <ClCompile Include="SwordFall.cpp">
+      <Filter>Entities\PlayerOnly</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game.h">
@@ -151,6 +154,9 @@
     </ClInclude>
     <ClInclude Include="HowtoPlayState.h">
       <Filter>States</Filter>
+    </ClInclude>
+    <ClInclude Include="SwordFall.h">
+      <Filter>Entities\PlayerOnly</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

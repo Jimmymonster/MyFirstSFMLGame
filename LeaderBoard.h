@@ -16,6 +16,7 @@ private:
     //background
     sf::RectangleShape background;
     sf::Texture backgroundTexture;
+    sf::RectangleShape squre;
 
     //function
     void initKeybinds();

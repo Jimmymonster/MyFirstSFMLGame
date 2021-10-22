@@ -35,7 +35,7 @@ public:
 	void createMovementComponent(const float maxVelocity, const float acceleration, const float deceleration);
 	void createAnimationComponent(sf::Texture& textureSheet, sf::Vector2f scale, int imgx, int imgy);
 	void initfont();
-	void createHpbar(float x,float y,sf::Vector2f scale);
+	void createHpbar(float &x,float &y,sf::Vector2f scale);
 	//Accessor
 	virtual const sf::Vector2f &getPosition()const;
 	const float getstat(std::string key);

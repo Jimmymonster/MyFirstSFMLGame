@@ -46,11 +46,11 @@ void Entity::createAnimationComponent( sf::Texture& textureSheet, sf::Vector2f s
 
 void Entity::initfont()
 {
-	if (!this->font.loadFromFile("Fonts/angsana.ttc")) {
+	if (!this->font.loadFromFile("Fonts/Minecraft.ttf")) {
 		throw("ERROR::MAINMENUSTATE::COULD NOT LOAD FONT");
 	}
 }
-void Entity::createHpbar(float x,float y,sf::Vector2f scale)
+void Entity::createHpbar(float &x,float &y,sf::Vector2f scale)
 {
 	this->HPbar = new gui::bar(x, y, 10*scale.x, 10, this->stat["HP"], this->stat["MAXHP"], &this->font, 26, sf::Color::Black, sf::Color::Red, sf::Color::White);
 }

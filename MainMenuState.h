@@ -13,8 +13,7 @@ private:
     sf::Texture backgroundTexture;
     sf::Font font;
 
-    std::map<std::string, gui::Button*> buttons;
-    gui::textbox* StudentID;
+    std::map<std::string, gui::ButtonForMainmenu*> buttons;
 
     //bgm & sound stuff
     sf::Music bgm;

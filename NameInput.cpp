@@ -21,17 +21,18 @@ NameInput::NameInput(sf::RenderWindow& window, sf::Font& font)
 	//Init text
 	this->text.setFont(font);
 	this->text.setFillColor(sf::Color(255, 255, 255, 200));
-	this->text.setCharacterSize(100);
+	this->text.setCharacterSize(50);
 	this->text.setString("Enter your name");
 	this->text.setPosition(
 		this->container.getPosition().x + this->container.getSize().x / 2.f - this->text.getGlobalBounds().width / 2.f,
-		this->container.getPosition().y + 40.f);
+		this->container.getPosition().y + 80.f);
 
 	this->name = "";
 	this->inputname = new gui::textbox(500, 200, 600, 50, sf::Color::White,
 		name,
-		&this->font, 30, sf::Color::Black
+		&this->font, 20, sf::Color::Black
 	);
+	this->texture.loadFromFile("Resources/UI/Btn2.png");
 }
 
 NameInput::~NameInput()
@@ -66,9 +67,11 @@ void NameInput::addButton(const std::string key, float x,float y, const std::str
 	float width = 70.f;
 	float height = 70.f;
 	this->buttons[key] = new gui::Button(x, y, width, height,
-		&this->font, text, 50,
-		sf::Color::White, sf::Color::White, sf::Color::White,
-		sf::Color(70, 70, 70, 200), sf::Color(150, 150, 150, 255), sf::Color(20, 20, 20, 200));
+		&this->font, text, 20,
+		sf::Color::Black, sf::Color::Black, sf::Color::Black,
+		sf::Color(255, 255, 255, 255), sf::Color(255, 255, 255, 220), sf::Color(200, 200, 200, 200),
+		sf::Color::Transparent, sf::Color::Transparent, sf::Color::Transparent,
+		&this->texture);
 }
 
 void NameInput::Update(const sf::Vector2f& mousePos)

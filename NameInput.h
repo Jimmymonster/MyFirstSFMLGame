@@ -11,6 +11,8 @@ private:
 	sf::RectangleShape background;
 	sf::RectangleShape container;
 
+	sf::Texture texture;
+
 	std::string name;
 
 	std::map<std::string, gui::Button*> buttons;

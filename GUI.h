@@ -41,6 +41,7 @@ namespace gui {
 			sf::Color text_idle_color, sf::Color text_hover_color, sf::Color text_active_color,
 			sf::Color idleColor, sf::Color hoverColor, sf::Color activeColor,
 			sf::Color outlineidleColor = sf::Color::Transparent, sf::Color outlinehoverColor = sf::Color::Transparent, sf::Color outlineactiveColor = sf::Color::Transparent,
+			sf::Texture *texture = nullptr,
 			short unsigned id = 0
 		);
 		~Button();
@@ -58,7 +59,43 @@ namespace gui {
 		void Update(sf::Vector2f mousePos);
 		void Render(sf::RenderTarget& target);
 	};
+	class ButtonForMainmenu
+	{
+	private:
+		short unsigned buttonState;
+		unsigned hover_size;
+		unsigned character_size;
 
+		bool pressed;
+		bool hover;
+
+		sf::RectangleShape shape;
+
+		sf::Font* font;
+		sf::Text text;
+
+		//texture
+		sf::Color text_idle_color;
+		sf::Texture glow;
+
+		//sound
+		sf::Sound BTNsound;
+		sf::SoundBuffer clicksound;
+		sf::Clock clock;
+		sf::Time soundDelay;
+	public:
+		ButtonForMainmenu(float x, float y, float width, float height,
+			sf::Font* font, std::string text, unsigned character_size,
+			sf::Color text_idle_color,unsigned hover_size
+		);
+		~ButtonForMainmenu();
+		//Accessors
+		const bool isPressed() const;
+
+		//function
+		void Update(sf::Vector2f mousePos);
+		void Render(sf::RenderTarget& target);
+	};
 	//=============================  DROP DOWN LIST  ===================================
 
 	class dropdownlist
@@ -88,8 +125,8 @@ namespace gui {
 	class bar
 	{
 	private:
-		float x;
-		float y;
+		float &x;
+		float &y;
 		float percent;
 		float value;
 		float Max_value;
@@ -102,12 +139,14 @@ namespace gui {
 		sf::Color Max_value_color;
 		sf::RectangleShape Max_value_shape;
 		sf::RectangleShape value_shape;
+		sf::RectangleShape texture;
 
 	public:
-		bar(float x, float y, float width, float height,
+		bar(float &x, float &y, float width, float height,
 			float value, float Max_value,
 			sf::Font* font, unsigned textsize, sf::Color text_color,
-			sf::Color value_color, sf::Color Max_value_color, bool showtext = false
+			sf::Color value_color, sf::Color Max_value_color, sf::Texture *texture = nullptr,
+			bool showtext = false
 		);
 		~bar();
 		//Accessor
@@ -130,6 +169,7 @@ namespace gui {
 		float height;
 		sf::Color box_color;
 		sf::Color text_color;
+		sf::Color Outlinecolor;
 		sf::Font* font;
 		sf::Text text;
 		sf::RectangleShape box;
@@ -139,7 +179,8 @@ namespace gui {
 		textbox(float x, float y, float width, float height,
 			sf::Color box_color, std::string text,
 			sf::Font* font, unsigned textsize, sf::Color text_color,
-			sf::Texture* texture = nullptr, bool left = false
+			sf::Texture* texture = nullptr, bool left = false,
+			sf::Color Outlinecolor = sf::Color::Transparent, float outlineSize = 0.f
 		);
 		~textbox();
 		//Accessor

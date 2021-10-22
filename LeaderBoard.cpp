@@ -12,7 +12,7 @@ void LeaderBoard::initKeybinds()
 }
 void LeaderBoard::initFonts()
 {
-	if (!this->font.loadFromFile("Fonts/angsana.ttc")) {
+	if (!this->font.loadFromFile("Fonts/Minecraft.ttf")) {
 		throw("ERROR::Leaderboard::COULD NOT LOAD FONT");
 	}
 }
@@ -27,14 +27,21 @@ void LeaderBoard::initBackground()
 
 void LeaderBoard::initGUI()
 {
-	this->leaderboard = new gui::textbox(600,100,400,100,sf::Color(255,255,255,100),
+	this->textures["UI_texture"].loadFromFile("Resources/UI/panel_Example1.png");
+	this->leaderboard = new gui::textbox(600, 100, 400, 100, sf::Color(255, 255, 255, 255),
 		"Leader Board",
-		&this->font,70,sf::Color::Black
+		&this->font, 50, sf::Color::Black, &this->textures["UI_texture"], false
 		);
-	this->quitBTN= new gui::Button(650, 750, 300.f, 75.f,
-		&this->font, "Quit", 50,
-		sf::Color::White, sf::Color::White, sf::Color::White,
-		sf::Color(70, 70, 70, 200), sf::Color(150, 150, 150, 255), sf::Color(20, 20, 20, 200));
+	this->textures["BTN"].loadFromFile("Resources/UI/Btn.png");
+	this->quitBTN = new gui::Button(650, 750, 300.f, 75.f,
+		&this->font, "Quit", 30,
+		sf::Color::Black, sf::Color::Black, sf::Color::Black,
+		sf::Color(255, 255, 255, 255), sf::Color(255, 255, 255, 220), sf::Color(20, 20, 20, 200),
+		sf::Color::Transparent, sf::Color::Transparent, sf::Color::Transparent,
+		&this->textures["BTN"]);
+	this->squre.setTexture(&this->textures["UI_texture"]);
+	this->squre.setPosition(100, 100);
+	this->squre.setSize(sf::Vector2f(1400, 700));
 }
 
 void LeaderBoard::initScore()
@@ -45,9 +52,9 @@ void LeaderBoard::initScore()
 		unsigned int score;
 		for (int i = 0; i < 5; i++) {
 			if (!(ifs >> name >> score)) return;
-			this->playerscore[i] = new gui::textbox(300, 200+i*100, 1000, 100, sf::Color(255, 255, 255, 200),
+			this->playerscore[i] = new gui::textbox(300, 200+i*100, 1000, 100, sf::Color::Transparent,
 				std::to_string(i+1) + "." + name + "    Score:" + std::to_string(score),
-				&this->font, 50, sf::Color::Black
+				&this->font, 30, sf::Color::Black
 			);
 		}
 	}
@@ -102,6 +109,8 @@ void LeaderBoard::Render(sf::RenderTarget* target)
 		target = this->window;
 	}
 	target->draw(this->background);
+
+	target->draw(this->squre);
 
 	this->leaderboard->Render(*target);
 	for (int i = 0; i < 5; i++) {

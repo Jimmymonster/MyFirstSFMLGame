@@ -14,6 +14,12 @@ private:
 	sf::VideoMode videoMode; // <-- default
 	sf::ContextSettings window_settings;
 
+	sf::RectangleShape Mouse;
+	sf::Texture MouseTexture;
+
+	gui::textbox* StudentID;
+	sf::Font font;
+
 	float deltaTime;
 	sf::Clock deltaTimeClock;
 
@@ -28,6 +34,7 @@ private:
 	void initializeWindow();
 	void initKeys();
 	void initializeStates();
+	void initMouse();
 
 public:
 
@@ -45,8 +52,10 @@ public:
 	void endGame();
 
 	//UPDATE
+
 	void UpdateDeltaTime();
 	void pollEvents();
+	void UpdateMouse();
 	void Update();
 
 	//RENDER

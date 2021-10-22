@@ -16,12 +16,12 @@ private:
 
     //GUI
     gui::textbox* Time;
-    gui::textbox* StudentID;
     std::string time_text;
     unsigned int hour, minutes, second;
     gui::textbox* status[5]; //<-- 0 = Hp/MaxHp 1 = Atk  2 = defense 3 = rampage
     
     gui::textbox* Score;
+    sf::RectangleShape Frame;
     unsigned int scoretime, scoreenemy;
 
     gui::damageNumber* dmgNum[1000];
@@ -49,8 +49,8 @@ private:
     sf::Time spawnnumTimer = sf::seconds(0.f);
 
     //background
-    sf::RectangleShape background;
-    sf::Texture backgroundTexture;
+    sf::RectangleShape background[2];
+    sf::Texture backgroundTexture[2];
 
     //Sounds
     sf::Music bgm;

@@ -1,6 +1,7 @@
 #pragma once
 #include "Entity.h"
 #include "SwordWave.h"
+#include "SwordFall.h"
 class Player:
 	public Entity
 {
@@ -9,6 +10,7 @@ private:
 	sf::Vector2f scale;
 	bool attacking;
 	bool swordwaving;
+	bool swordfalling;
 	bool swordwaved;
 	bool Isattacked;
 	bool knockback;
@@ -19,9 +21,14 @@ private:
 
 	int attackIdx;
 	bool attackPlayed[3];
-	//float saveAtk;
+	
+	sf::FloatRect hpbar, rampagebar, swordskillbar;
+	sf::Texture bar;
 
-	HitboxComponent* attackhitboxComponent[4];
+	HitboxComponent* attackhitboxComponent[5];
+	// 0,1,2 basic atk
+	// 3 swordwave
+	// 4 swordfall
 	gui::bar* Rampagebar;
 	gui::bar* swordskill;
 	sf::Time WaveSwordCooldown = sf::seconds(8.f);
@@ -33,16 +40,22 @@ private:
 	SwordWave* swordWave;
 	sf::Texture swordwavesheet;
 
+	SwordFall* swordFall;
+	sf::Texture swordFallsheet;
+
 	sf::Clock clock;
     sf::Time elapsed;
 	sf::Time attackdelayTime = sf::seconds(0);
 	sf::Time swordWavedelayTime = sf::seconds(0);
+	sf::Time swordFalldelayTime = sf::seconds(0);
 	sf::Time time2 = sf::seconds(0);
 	sf::Time rampageDelay = sf::seconds(0);
 
 	//sound
 	sf::Sound sound;
 	sf::Sound walksound;
+	sf::Sound swordFallSound;
+	sf::SoundBuffer swordFallSoundBuffer;
 	std::map<std::string, sf::SoundBuffer> buffer;
 	
 	//function
@@ -62,19 +75,23 @@ public:
 	void Attacked();
 	void Attack();
 	void swordwave();
+	void swordfall();
 	void playSound(std::string key);
 
 	//Accessor
 	const float& getRampage()const;
 	const bool& DisableInput()const;
 	const bool& onRampage()const;
+	const bool& getSwordFallFloor()const;
 	const sf::FloatRect getAttackHitboxGlobalbound(int idx)const;
 	//Modifier
 	void setRampage(float value);
+	void stopWalkSound();
 	//Update stuff
 	void UpdateAnimation(const float& deltaTime);
 	void UpdateGUI(const float& deltaTime);
-	virtual void Update(const float& deltaTime);
+	void UpdateSound();
+	virtual void Update(const float& deltaTime, sf::Vector2f &mousePosView);
 	virtual void Render(sf::RenderTarget& target, bool showhitbox = false);
 };
 

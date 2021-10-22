@@ -13,7 +13,7 @@ void GameState::initKeybinds()
 }
 void GameState::initFonts()
 {
-	if (!this->pauseMenufont.loadFromFile("Fonts/angsana.ttc")) {
+	if (!this->pauseMenufont.loadFromFile("Fonts/Minecraft.ttf")) {
 		throw("ERROR::GAMESTATE::COULD NOT LOAD FONT");
 	}
 }
@@ -29,6 +29,7 @@ void GameState::initTextures()
 	this->textures["DefenseUp"].loadFromFile("Resources/Item/DefenseUp.jpg");
 	this->textures["HealthUp"].loadFromFile("Resources/Item/HealthUp.jpg");
 	this->textures["RampageUp"].loadFromFile("Resources/Item/RampageUp.jpg");
+	this->textures["UI_texture"].loadFromFile("Resources/UI/panel_Example1.png");
 }
 
 void GameState::initMenu()
@@ -73,7 +74,7 @@ void GameState::initMenu()
 void GameState::initPlayers()
 {
 	//																					maxhp atk def crirate cridamage
-	this->player = new Player(800, 669, this->textures["PLAYER_SHEET"], sf::Vector2f(3, 3), 33, 2, 100, 5, 2, 5, 50);
+	this->player = new Player(800, 669, this->textures["PLAYER_SHEET"], sf::Vector2f(3, 3), 33, 2, 100, 5, 5, 5, 50);
 	//this->player = new Player(800, 669, this->textures["PLAYER_SHEET"], sf::Vector2f(3, 3), 33, 2, 1, 5, 1, 5, 50);
 }
 void GameState::initEntities()
@@ -82,37 +83,38 @@ void GameState::initEntities()
 }
 void GameState::initGUI()
 {
-	this->StudentID = new gui::textbox(1200, 80, 200, 50, sf::Color::Transparent,
-		"64010324	Thanapob Parinyarat",
-		&this->pauseMenufont, 50, sf::Color::Black);
 	//Time
-	this->Time = new gui::textbox(1100, 30, 200, 50, sf::Color::White,
+	this->Time = new gui::textbox(900, 30, 300, 50, sf::Color::White,
 		"Time : "+std::to_string((int)this->clock.getElapsedTime().asSeconds()),
-		&this->pauseMenufont, 30, sf::Color::Black);
-	this->Score = new gui::textbox(1300, 30, 200, 50, sf::Color::White,
+		&this->pauseMenufont, 25, sf::Color::Black,&this->textures["UI_texture"]);
+	this->Score = new gui::textbox(1200, 30, 300, 50, sf::Color::White,
 		"Score :" + std::to_string(this->scoretime + this->scoreenemy),
-		&this->pauseMenufont, 30, sf::Color::Black);
+		&this->pauseMenufont, 25, sf::Color::Black, &this->textures["UI_texture"]);
 	//status
-	this->status[0] = new gui::textbox(40, 120, 250, 50, sf::Color(255,255,255,100),
+	this->Frame.setTexture(&this->textures["UI_texture"]);
+	this->Frame.setPosition(sf::Vector2f(30.f,145.f));
+	this->Frame.setSize(sf::Vector2f(350,250));
+	this->status[0] = new gui::textbox(40, 170, 350, 50, sf::Color::Transparent,
 		"Health  : " + std::to_string((int)this->player->getstat("HP")) + "/" + std::to_string((int)this->player->getstat("MAXHP")),
 		&this->pauseMenufont, 30, sf::Color::Black, nullptr, true);
-	this->status[1] = new gui::textbox(40, 170, 250, 50, sf::Color(255, 255, 255, 100),
+	this->status[1] = new gui::textbox(40, 220, 350, 50, sf::Color::Transparent,
 		"Attack  : " + std::to_string((int)this->player->getstat("ATK")),
 		&this->pauseMenufont, 30, sf::Color::Black, nullptr, true);
-	this->status[2] = new gui::textbox(40, 220, 250, 50, sf::Color(255, 255, 255, 100),
+	this->status[2] = new gui::textbox(40, 270, 350, 50, sf::Color::Transparent,
 		"Defense : " + std::to_string((int)this->player->getstat("DEFENSE")),
 		&this->pauseMenufont, 30, sf::Color::Black, nullptr, true);
-	this->status[3] = new gui::textbox(40, 270, 250, 50, sf::Color(255, 255, 255, 100),
+	this->status[3] = new gui::textbox(40, 320, 350, 50, sf::Color::Transparent,
 		"Rampage : " + std::to_string((int)this->player->getRampage()) + "/100" ,
 		&this->pauseMenufont, 30, sf::Color::Black, nullptr, true);
 }
 void GameState::initBackground()
 {
-	this->background.setSize(sf::Vector2f(static_cast<float>(this->window->getSize().x), static_cast<float>(this->window->getSize().y)));
-	if (!this->backgroundTexture.loadFromFile("Resources/BackGround/GamestateBackground.png")) {
-		throw("ERROR::MAINMENUSTATE::COULD NOT LOAD BACKGROUND TEXTURE");
-	}
-	this->background.setTexture(&backgroundTexture);
+	this->background[0].setSize(sf::Vector2f(static_cast<float>(this->window->getSize().x), static_cast<float>(this->window->getSize().y)));
+	this->backgroundTexture[0].loadFromFile("Resources/BackGround/GamestateBackground.png");
+	this->background[0].setTexture(&backgroundTexture[0]);
+	this->background[1].setSize(sf::Vector2f(static_cast<float>(this->window->getSize().x), static_cast<float>(this->window->getSize().y)));
+	this->backgroundTexture[1].loadFromFile("Resources/BackGround/GamestateBackground1.png");
+	this->background[1].setTexture(&backgroundTexture[1]);
 }
 void GameState::initSounds()
 {
@@ -129,11 +131,16 @@ void GameState::initSounds()
 	this->ItemSoundBuffer.loadFromFile("Resources/Sounds/Item/345297__scrampunk__itemize.wav");
 	this->ItemSound.setBuffer(this->ItemSoundBuffer);
 	this->ItemSound.setVolume(30.f);
+
+	this->bgm.openFromFile("Resources/Sounds/Ingame/bgm.wav");
+	this->bgm.setVolume(25.f);
+	this->bgm.setLoop(true);
+	this->bgm.play();
 }
 
 GameState::GameState(sf::RenderWindow* window, std::map<std::string, int>* supportedKeys, std::stack<State*>* states)
 	: State(window, supportedKeys, states), hour(0), minutes(0), second(0), scoretime(0), scoreenemy(0), backtoMenu(false), entername(false), Enter(false),
-	hp(10),defense(2),atk(5),crirate(5),cridamage(50),spawnnum(1)
+	hp(10),defense(3),atk(10),crirate(5),cridamage(50),spawnnum(1)
 {
 	this->initKeybinds();
 	this->initFonts();
@@ -165,7 +172,15 @@ GameState::~GameState()
 void GameState::checkEndgame()
 {
 	if (this->player->checkDeath()) {
-		if (this->temp == sf::seconds(0.f)) this->temp = this->elapsed;
+		if (this->temp == sf::seconds(0.f)) {
+			this->temp = this->elapsed;
+			this->player->stopWalkSound();
+			if (this->bgm.getStatus() == sf::Music::Playing) {
+				this->bgm.stop();
+			}
+			this->bgm.openFromFile("Resources/Sounds/Ingame/Snail_s-House-Pixel-Galaxy-_Official-MV_ (1).wav");
+			this->bgm.play();
+		}
 		if (this->elapsed - this->temp >= sf::seconds(5.f)) {
 
 			this->entername = true;
@@ -274,6 +289,7 @@ void GameState::spawner()
 		value = this->hp * 0.1f;
 		//if (value > 1000.f) value = 1000.f;
 		if (this->player->getstat("ATK") > this->hp * 0.4) value += this->player->getstat("ATK") / 2.f;
+		if (this->forceEndgame) value += this->hp * 0.1f;
 		this->hp += value;
 
 		value = this->defense * 0.08f;
@@ -283,6 +299,7 @@ void GameState::spawner()
 		value = this->atk * 0.1f;
 		//if (value > 100.f) value = 100.f;
 		if (this->player->getstat("MAXHP") / 15 > this->atk) value += this->player->getstat("MAXHP") / 15;
+		if (this->forceEndgame) value += this->atk * 0.2f;
 		this->atk += value;
 		this->statUpTimer = this->elapsed;
 	}
@@ -322,6 +339,9 @@ void GameState::UpdatePlayerInput(const float& deltaTime)
 		this->player->move(0.f, -400.f, deltaTime);
 	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key(this->keybinds.at("CROUCH"))))
 		this->player->move(0.f, 1.f, deltaTime);
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key(this->keybinds.at("SWORDFALL")))) {
+		this->player->swordfall();
+	}
 	if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
 		this->player->Attack();
 		//if (!this->isSlimeBeingHit) this->player->playSound("SwordMiss");
@@ -344,6 +364,7 @@ void GameState::UpdatePauseMenuButtons()
 	else if (this->pauseMenu->isButtonPressed("RESUME")) {
 		this->pauseTime += this->elapsed - this->temp;
 		this->temp = sf::seconds(0.f);
+		this->bgm.play();
 		this->unpauseState();
 	}
 }
@@ -360,10 +381,16 @@ void GameState::UpdateNameInputButtons()
 				}
 			}
 			else if (it.first == "ENTER") {
-				this->Enter = true;
+				if (this->Nameinput->getstring() != "") {
+					if (this->bgm.getStatus() == sf::Music::Playing) {
+						this->bgm.stop();
+					}
+					this->Enter = true;
+				}
 			}
 			else {
-				this->Nameinput->setstring(this->Nameinput->getstring() + it.first);
+				if(this->Nameinput->getstring().length()<=20)
+					this->Nameinput->setstring(this->Nameinput->getstring() + it.first);
 			}
 		}
 	}
@@ -401,7 +428,6 @@ void GameState::Update(const float& deltaTime)
 	this->UpdateMousePositions();
 	this->UpdateInput(deltaTime);
 	this->UpdateKeytime(deltaTime);
-	this->checkEndgame();
 
 	if (this->entername) {
 		this->Nameinput->Update(this->mousePosView);
@@ -412,15 +438,21 @@ void GameState::Update(const float& deltaTime)
 
 		this->spawner();
 		this->UpdatePlayerInput(deltaTime);
-		this->player->Update(deltaTime);
+		this->player->Update(deltaTime,this->mousePosView);
 
+		//================ Death =======================================
 		if (!this->player->checkDeath())
 			this->UpdateGUI(deltaTime);
 		if (this->playerdmgNum) {
 			this->playerdmgNum->Update(deltaTime);
 			if (this->playerdmgNum->remove()) this->playerdmgNum = nullptr;
 		}
-
+		//================================================================
+		//=================== Sword Fall Shake =============================
+		if (this->player->getSwordFallFloor()) {
+			this->shaking = true;
+		}
+		//================================================================
 		for (int i = 0; i < 999; i++) {
 			if (!this->slime[i]) continue;
 			this->slime[i]->Update(deltaTime, this->player->getPosition());
@@ -441,7 +473,7 @@ void GameState::Update(const float& deltaTime)
 			}
 			if (!this->slime[i]) continue;
 			this->slimecou++;
-			if (this->slimecou > 70 || this->elapsed>=sf::seconds(480)) this->forceEndgame = true;
+			if (this->slimecou > 70 || this->elapsed>=sf::seconds(300)) this->forceEndgame = true;
 			//slime jump sound
 			if (this->slime[i]->getJump()) {
 				this->slimeSound[2].setBuffer(this->slimeSoundBuffer[2]);
@@ -449,13 +481,14 @@ void GameState::Update(const float& deltaTime)
 			}
 
 			// player hit slime
-			for(int j=0;j<4;j++){
+			for(int j=0;j<5;j++){
 				if (this->slime[i]->intersect(this->player->getAttackHitboxGlobalbound(j)) && !slime[i]->Invincible()) {
 					float diff;
 					if (j == 0) diff = this->player->getstat("ATK") - this->slime[i]->getstat("DEFENSE");
 					if (j == 1) diff = this->player->getstat("ATK") * 1.1f - this->slime[i]->getstat("DEFENSE");
 					if (j == 2) diff = this->player->getstat("ATK") * 1.5f; // ignore def
 					if (j == 3) diff = this->player->getstat("ATK") - this->slime[i]->getstat("DEFENSE");
+					if (j == 4) diff = this->player->getstat("ATK") * 0.2f;
 					if (diff <= 1) diff = 1.f;
 
 					if (this->player->onRampage()) {
@@ -476,6 +509,7 @@ void GameState::Update(const float& deltaTime)
 					if (j == 1) this->slime[i]->Attacked(1000, 500);
 					if (j == 2) this->slime[i]->Attacked(2000, 1000);
 					if (j == 3) this->slime[i]->Attacked(1000, 500);
+					if (j == 4) this->slime[i]->Attacked(0, 0);
 
 					if (this->slime[i]->checkDeath()) {
 						this->slimeSound[1].setBuffer(this->slimeSoundBuffer[1]);
@@ -584,9 +618,14 @@ void GameState::Update(const float& deltaTime)
 		}
 	}
 	else {// Update pause state
+		if (this->bgm.getStatus() == sf::Music::Playing) {
+			this->bgm.stop();
+		}
 		this->pauseMenu->Update(this->mousePosView);
 		this->UpdatePauseMenuButtons();
+		this->player->stopWalkSound();
 	}
+	this->checkEndgame();
 }
 
 void GameState::Render(sf::RenderTarget* target)
@@ -596,7 +635,7 @@ void GameState::Render(sf::RenderTarget* target)
 	}
 	if (this->shaking&&!this->player->checkDeath()) this->shakeScreen();
 
-	target->draw(this->background);
+	target->draw(this->background[0]);
 
 	//this->player->Render(*target,true); //<---for hit block check
 	this->player->Render(*target);
@@ -612,12 +651,15 @@ void GameState::Render(sf::RenderTarget* target)
 	}
 	if (this->playerdmgNum) this->playerdmgNum->Render(*target);
 
+	target->draw(this->Frame);
 	for (int i = 0; i < 5; i++) {
 		if (status[i]) status[i]->Render(*target);
 	}
-	this->StudentID->Render(*target);
+
 	this->Time->Render(*target);
 	this->Score->Render(*target);
+
+	target->draw(this->background[1]);
 
 	if (this->entername) {
 		this->Nameinput->Render(*target);
