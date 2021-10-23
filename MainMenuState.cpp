@@ -80,6 +80,7 @@ MainMenuState::MainMenuState(sf::RenderWindow* window, std::map<std::string, int
 	this->initButtons();
 	this->initBackground();
 	this->initBGM();
+	pfirefly = new pFirefly(50);
 }
 MainMenuState::~MainMenuState()
 {
@@ -143,6 +144,8 @@ void MainMenuState::Update(const float& deltaTime)
 	this->UpdateInput(deltaTime);
 	this->UpdateBGM();
 	this->UpdateBTN();
+
+	pfirefly->Update(deltaTime);
 }
 
 void MainMenuState::RenderBTN(sf::RenderTarget& target)
@@ -158,6 +161,7 @@ void MainMenuState::Render(sf::RenderTarget* target)
 		target = this->window;
 	}
 	target->draw(this->background);
+	pfirefly->Render(target);
 
 	this->RenderBTN(*target);
 

@@ -28,6 +28,9 @@
     <Filter Include="Entities\PlayerOnly">
       <UniqueIdentifier>{837fe6b2-e8a7-492c-8643-d12d46ee830e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Particles">
+      <UniqueIdentifier>{8db4fd8c-61d7-42a2-8631-d895c7ee769b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -93,6 +96,12 @@
     <ClCompile Include="SwordFall.cpp">
       <Filter>Entities\PlayerOnly</Filter>
     </ClCompile>
+    <ClCompile Include="pFirefly.cpp">
+      <Filter>Particles</Filter>
+    </ClCompile>
+    <ClCompile Include="SlimeSplash.cpp">
+      <Filter>Particles</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game.h">
@@ -157,6 +166,12 @@
     </ClInclude>
     <ClInclude Include="SwordFall.h">
       <Filter>Entities\PlayerOnly</Filter>
+    </ClInclude>
+    <ClInclude Include="pFirefly.h">
+      <Filter>Particles</Filter>
+    </ClInclude>
+    <ClInclude Include="SlimeSplash.h">
+      <Filter>Particles</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

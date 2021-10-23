@@ -4,6 +4,7 @@
 #include "EditorState.h"
 #include "HowtoPlayState.h"
 #include "GUI.h"
+#include "pFirefly.h"
 
 class MainMenuState : public State
 {
@@ -12,6 +13,8 @@ private:
     sf::RectangleShape background;
     sf::Texture backgroundTexture;
     sf::Font font;
+
+    pFirefly *pfirefly;
 
     std::map<std::string, gui::ButtonForMainmenu*> buttons;
 
