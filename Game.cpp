@@ -28,7 +28,8 @@ void Game::initializeWindow()
 		ifs >> antialiasing_level;
 	}
 	ifs.close();
-
+	icon.loadFromFile("Resources/icon.png");
+	
 	this->window_settings.antialiasingLevel = antialiasing_level;
 	if(fullscreen)
 		this->window = new sf::RenderWindow(sf::VideoMode(this->videoMode), title, sf::Style::Fullscreen, window_settings);
@@ -37,6 +38,7 @@ void Game::initializeWindow()
 
 	this->window->setFramerateLimit(framerate_limit);
 	this->window->setVerticalSyncEnabled(vertical_sync_enabled);
+	this->window->setIcon(icon.getSize().x, icon.getSize().y, icon.getPixelsPtr());
 }
 
 void Game::initKeys()

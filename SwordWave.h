@@ -17,6 +17,6 @@ public:
 
 	//function
 	void Update(const float& deltaTime);
-	void Render(sf::RenderTarget& target);
+	void Render(sf::RenderTarget& target, sf::Shader* shader);
 };
 

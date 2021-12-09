@@ -36,6 +36,6 @@ public:
 
     //function
     void Update(const float& deltatime, sf::Vector2f &mousePosView);
-    void Render(sf::RenderTarget& target);
+    void Render(sf::RenderTarget& target, sf::Shader* shader);
 };
 

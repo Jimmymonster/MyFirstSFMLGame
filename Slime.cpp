@@ -174,3 +174,14 @@ void Slime::Update(const float& deltaTime,sf::Vector2f playerPos)
 	}
 	
 }
+void Slime::Render(sf::RenderTarget& target, sf::Shader* shader, bool showhitbox)
+{
+	shader->setUniform("hasTexture", true);
+	target.draw(this->sprite, shader);
+
+	if (this->hitboxComponent && showhitbox)
+		hitboxComponent->Render(target);
+
+	if (this->HPbar && this->stat["HP"] < this->stat["MAXHP"])
+		HPbar->Render(target);
+}

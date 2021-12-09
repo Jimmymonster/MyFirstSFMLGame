@@ -1,7 +1,6 @@
 #pragma once
 
 #include "GameState.h"
-#include "EditorState.h"
 #include "HowtoPlayState.h"
 #include "GUI.h"
 #include "pFirefly.h"

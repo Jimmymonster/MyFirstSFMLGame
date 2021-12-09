@@ -77,6 +77,12 @@ void GameState::initPlayers()
 	this->player = new Player(800, 669, this->textures["PLAYER_SHEET"], sf::Vector2f(3, 3), 33, 2, 100, 5, 5, 5, 50);
 	//this->player = new Player(800, 669, this->textures["PLAYER_SHEET"], sf::Vector2f(3, 3), 33, 2, 1, 5, 1, 5, 50);
 }
+void GameState::initShaders()
+{
+	if (!this->core_shader.loadFromFile("vertex_shader.vert", "fragment_shader.frag")) {
+		std::cout << "ERROR loading shader from gamestate" << std::endl;
+	}
+}
 void GameState::initEntities()
 {
 	for (int i = 0; i < 999; i++) slimeDelayTime[i] = sf::seconds(0);
@@ -109,12 +115,14 @@ void GameState::initGUI()
 }
 void GameState::initBackground()
 {
-	this->background[0].setSize(sf::Vector2f(static_cast<float>(this->window->getSize().x), static_cast<float>(this->window->getSize().y)));
-	this->backgroundTexture[0].loadFromFile("Resources/BackGround/GamestateBackground.png");
-	this->background[0].setTexture(&backgroundTexture[0]);
-	this->background[1].setSize(sf::Vector2f(static_cast<float>(this->window->getSize().x), static_cast<float>(this->window->getSize().y)));
-	this->backgroundTexture[1].loadFromFile("Resources/BackGround/GamestateBackground1.png");
-	this->background[1].setTexture(&backgroundTexture[1]);
+	this->background.setSize(sf::Vector2f(static_cast<float>(this->window->getSize().x), static_cast<float>(this->window->getSize().y)));
+	this->backgroundTexture.loadFromFile("Resources/BackGround/LeaderboardBackground.jpg");
+	this->background.setTexture(&backgroundTexture);
+	//================================================
+	this->backgroundTextureSheet.loadFromFile("Resources/BackGround/BackgroundSprite.png");
+	this->backgroundSprite.setPosition(800, 450);
+	this->backgroundAnimation = new AnimationComponent(this->backgroundSprite, this->backgroundTextureSheet, sf::Vector2f(1600.f/1920.f, 900.f/1200.f), 2, 3);
+	this->backgroundAnimation->addAnimation("IDLE", 50.f, 0, 0, 0, 2);
 }
 void GameState::initSounds()
 {
@@ -147,6 +155,7 @@ GameState::GameState(sf::RenderWindow* window, std::map<std::string, int>* suppo
 	this->initTextures();
 	this->initMenu();
 	this->initPlayers();
+	this->initShaders();
 	this->initEntities();
 	this->initGUI();
 	this->initBackground();
@@ -156,6 +165,8 @@ GameState::GameState(sf::RenderWindow* window, std::map<std::string, int>* suppo
 	this->slimecou = 0;
 	//Set Seed <-- need to fix
 	srand(time(0));
+
+	pfirefly = new pFirefly(20,300);
 }
 
 GameState::~GameState()
@@ -314,10 +325,12 @@ void GameState::UpdateInput(const float& deltaTime)
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key(this->keybinds.at("CLOSE"))) && this->getKeytime()) {
 		if (!this->pause) {
 			this->temp = this->elapsed;
+			
 			this->pauseState();
 		}
 		else {
 			this->pauseTime += this->elapsed - this->temp;
+			this->bgm.play();
 			this->temp = sf::seconds(0.f);
 			this->unpauseState();
 		}
@@ -329,6 +342,10 @@ void GameState::UpdateInput(const float& deltaTime)
 
 void GameState::UpdatePlayerInput(const float& deltaTime)
 {
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key(this->keybinds.at("SWORDFALL")))) {
+		this->player->swordfall();
+	}
+
 	if (this->player->DisableInput()) return;
 	//Update player input
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key(this->keybinds.at("MOVE_LEFT"))))
@@ -339,9 +356,8 @@ void GameState::UpdatePlayerInput(const float& deltaTime)
 		this->player->move(0.f, -400.f, deltaTime);
 	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key(this->keybinds.at("CROUCH"))))
 		this->player->move(0.f, 1.f, deltaTime);
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key(this->keybinds.at("SWORDFALL")))) {
-		this->player->swordfall();
-	}
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key(this->keybinds.at("SLIDE"))))
+		this->player->Slide();
 	if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
 		this->player->Attack();
 		//if (!this->isSlimeBeingHit) this->player->playSound("SwordMiss");
@@ -454,8 +470,7 @@ void GameState::Update(const float& deltaTime)
 		}
 		//================================================================
 		for (int i = 0; i < 999; i++) {
-			if (!this->slime[i]) continue;
-			this->slime[i]->Update(deltaTime, this->player->getPosition());
+			if (this->slime[i]) this->slime[i]->Update(deltaTime, this->player->getPosition());
 		}
 		for (int i = 0; i < 999; i++) {
 			if (this->Item[i]) this->Item[i]->Update(deltaTime);
@@ -505,6 +520,7 @@ void GameState::Update(const float& deltaTime)
 							40, 1,
 							sf::Color::White, sf::Color::Black);
 					}
+
 					if (j == 0) this->slime[i]->Attacked(1000, 500);
 					if (j == 1) this->slime[i]->Attacked(1000, 500);
 					if (j == 2) this->slime[i]->Attacked(2000, 1000);
@@ -555,7 +571,7 @@ void GameState::Update(const float& deltaTime)
 				}
 			}
 			// Slime hit player
-			if (this->slime[i]->intersect(this->player->getHitboxGlobalbound()) && !player->Invincible()) {
+			if (this->slime[i]->intersect(this->player->getHitboxGlobalbound()) && !player->Invincible() && !player->getSlide()) {
 				this->shaking = true;
 				float diff;
 				diff = this->slime[i]->getstat("ATK") - this->player->getstat("DEFENSE");
@@ -616,6 +632,9 @@ void GameState::Update(const float& deltaTime)
 			}
 			// ==============================================================
 		}
+		//Update Animation
+		this->backgroundAnimation->play("IDLE", deltaTime);
+		pfirefly->Update(deltaTime);
 	}
 	else {// Update pause state
 		if (this->bgm.getStatus() == sf::Music::Playing) {
@@ -635,18 +654,16 @@ void GameState::Render(sf::RenderTarget* target)
 	}
 	if (this->shaking&&!this->player->checkDeath()) this->shakeScreen();
 
-	target->draw(this->background[0]);
+	target->draw(this->background);
 
 	//this->player->Render(*target,true); //<---for hit block check
-	this->player->Render(*target);
+	this->player->Render(*target, &this->core_shader);
 
 	for (int i = 0; i < 999; i++) {
-		if (!this->slime[i]) continue;
-		//if (this->slime[i]) this->slime[i]->Render(*target, true); //<---for hit block check
-		if (this->slime[i]) this->slime[i]->Render(*target);
+		if (this->slime[i]) this->slime[i]->Render(*target , &this->core_shader);
 	}
 	for (int i = 0; i < 999; i++) {
-		if (this->Item[i]) this->Item[i]->Render(*target);
+		if (this->Item[i]) this->Item[i]->Render(*target, &this->core_shader);
 		if (this->dmgNum[i]) this->dmgNum[i]->Render(*target);
 	}
 	if (this->playerdmgNum) this->playerdmgNum->Render(*target);
@@ -656,10 +673,14 @@ void GameState::Render(sf::RenderTarget* target)
 		if (status[i]) status[i]->Render(*target);
 	}
 
+	pfirefly->Render(target);
+
 	this->Time->Render(*target);
 	this->Score->Render(*target);
 
-	target->draw(this->background[1]);
+	target->draw(this->backgroundSprite , &this->core_shader);
+
+	
 
 	if (this->entername) {
 		this->Nameinput->Render(*target);

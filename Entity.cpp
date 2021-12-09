@@ -61,6 +61,19 @@ const sf::Vector2f &Entity::getPosition() const
 	return this->sprite.getPosition();
 }
 
+const sf::Vector2f Entity::getCenter() const
+{
+	if (this->hitboxComponent)
+		return this->hitboxComponent->getHitbox()->getPosition() +
+		sf::Vector2f(
+			this->hitboxComponent->getHitbox()->getGlobalBounds().width / 2.f,
+			this->hitboxComponent->getHitbox()->getGlobalBounds().height / 2.f);
+	return this->sprite.getPosition() +
+		sf::Vector2f(
+			this->sprite.getGlobalBounds().width / 2.f,
+			this->sprite.getGlobalBounds().height / 2.f);
+}
+
 const float Entity::getstat(std::string key)
 {
 	return this->stat[key];
@@ -119,7 +132,7 @@ void Entity::Update(const float& deltaTime)
 
 }
 
-void Entity::Render(sf::RenderTarget& target, bool showhitbox)
+void Entity::Render(sf::RenderTarget& target, sf::Shader* shader, bool showhitbox)
 {
 	target.draw(this->sprite);
 

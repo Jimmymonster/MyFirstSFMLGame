@@ -19,7 +19,7 @@ void LeaderBoard::initFonts()
 void LeaderBoard::initBackground()
 {
 	this->background.setSize(sf::Vector2f(static_cast<float>(this->window->getSize().x), static_cast<float>(this->window->getSize().y)));
-	if (!this->backgroundTexture.loadFromFile("Resources/BackGround/LeaderboardBackground.jpg")) {
+	if (!this->backgroundTexture.loadFromFile("Resources/BackGround/Mainmenu.jpg")) {
 		throw("ERROR::Leaderboard::COULD NOT LOAD BACKGROUND TEXTURE");
 	}
 	this->background.setTexture(&backgroundTexture);
@@ -70,6 +70,7 @@ LeaderBoard::LeaderBoard(sf::RenderWindow* window, std::map<std::string, int>* s
 	this->initGUI();
 	this->initBackground();
 	this->initScore();
+	pfirefly = new pFirefly(50);
 }
 
 LeaderBoard::~LeaderBoard()
@@ -101,6 +102,7 @@ void LeaderBoard::Update(const float& deltaTime)
 	this->UpdateKeytime(deltaTime);
 	this->UpdateInput(deltaTime);
 	this->UpdateGUI(deltaTime);
+	pfirefly->Update(deltaTime);
 }
 
 void LeaderBoard::Render(sf::RenderTarget* target)
@@ -109,7 +111,7 @@ void LeaderBoard::Render(sf::RenderTarget* target)
 		target = this->window;
 	}
 	target->draw(this->background);
-
+	pfirefly->Render(target);
 	target->draw(this->squre);
 
 	this->leaderboard->Render(*target);

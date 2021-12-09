@@ -1,6 +1,7 @@
 #pragma once
 #include "State.h"
 #include "AnimationComponent.h"
+#include "pFirefly.h"
 class HowtoPlayState :
     public State
 {
@@ -10,6 +11,7 @@ private:
     //background
     sf::RectangleShape background;
     sf::Texture backgroundTexture;
+    pFirefly* pfirefly;
 
     AnimationComponent* animationComponent[3];
     sf::Sprite sprite[5];

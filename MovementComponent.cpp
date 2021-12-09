@@ -96,7 +96,7 @@ void MovementComponent::Update(const float& deltaTime)
 	//gravity (acceleration * scale)
 	this->velocity.y += 9.80665f*3;
 	//floor
-	if (this->hitbox->getPosition().y + this->hitbox->getGlobalBounds().height >= 730.f) {
+	if (this->hitbox->getPosition().y + this->hitbox->getGlobalBounds().height >= 705.f) {
 		this->velocity.y = 0;
 	}
 	//check if on floor

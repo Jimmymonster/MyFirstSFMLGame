@@ -28,5 +28,8 @@ public:
     void setpickUp(bool value);
     //Update stuff
     virtual void Update(const float& deltaTime);
+
+    //Render
+    void Render(sf::RenderTarget& target, sf::Shader* shader = nullptr, bool showhitbox = false);
 };
 

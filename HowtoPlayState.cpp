@@ -22,7 +22,7 @@ void HowtoPlayState::initFonts()
 void HowtoPlayState::initBackground()
 {
 	this->background.setSize(sf::Vector2f(static_cast<float>(this->window->getSize().x), static_cast<float>(this->window->getSize().y)));
-	if (!this->backgroundTexture.loadFromFile("Resources/BackGround/LeaderboardBackground.jpg")) {
+	if (!this->backgroundTexture.loadFromFile("Resources/BackGround/Mainmenu.jpg")) {
 		throw("ERROR::Leaderboard::COULD NOT LOAD BACKGROUND TEXTURE");
 	}
 	this->background.setTexture(&backgroundTexture);
@@ -92,6 +92,7 @@ HowtoPlayState::HowtoPlayState(sf::RenderWindow* window, std::map<std::string, i
 	this->squre.setTexture(&this->textures["UI_texture"]);
 	this->squre.setPosition(100, 100);
 	this->squre.setSize(sf::Vector2f(1400, 700));
+	pfirefly = new pFirefly(50);
 }
 
 HowtoPlayState::~HowtoPlayState()
@@ -122,6 +123,7 @@ void HowtoPlayState::Update(const float& deltaTime)
 	this->animationComponent[0]->play("RUN",deltaTime);
 	this->animationComponent[1]->play("JUMP", deltaTime);
 	this->animationComponent[2]->play("ATTACK", deltaTime);
+	pfirefly->Update(deltaTime);
 }
 
 void HowtoPlayState::Render(sf::RenderTarget* target)
@@ -130,6 +132,7 @@ void HowtoPlayState::Render(sf::RenderTarget* target)
 		target = this->window;
 	}
 	target->draw(this->background);
+	pfirefly->Render(target);
 	target->draw(this->squre);
 
 	for (int i = 0; i < 5; i++) target->draw(this->sprite[i]);

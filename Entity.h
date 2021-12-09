@@ -38,6 +38,7 @@ public:
 	void createHpbar(float &x,float &y,sf::Vector2f scale);
 	//Accessor
 	virtual const sf::Vector2f &getPosition()const;
+	virtual const sf::Vector2f getCenter()const;
 	const float getstat(std::string key);
 	const bool checkDeath();
 	const bool Invincible();
@@ -50,6 +51,6 @@ public:
 	virtual void move(const float x, const float y, const float& deltaTime);
 
 	virtual void Update(const float& deltaTime);
-	virtual void Render(sf::RenderTarget& target, bool showhitbox = false);
+	virtual void Render(sf::RenderTarget& target, sf::Shader* shader = nullptr, bool showhitbox = false);
 };
 

@@ -13,6 +13,7 @@ void Player::initVariables()
 	this->onrampage = false;
 	this->swordwaving = false;
 	this->swordwaved = false;
+	this->slide = false;
 	this->attackIdx = 0;
 	this->swordfalling = false;
 	this->swordFall = nullptr;
@@ -28,6 +29,9 @@ void Player::initVariables()
 	this->swordskillbar.left = this->swordskillbar.top = 0.f;
 	this->swordskillbar.width = 40.f;
 	this->swordskillbar.height = 5.f;
+	this->slidebar.left = this->slidebar.top = 0.f;
+	this->slidebar.width = 40.f;
+	this->slidebar.height = 5.f;
 
 	bar.loadFromFile("Resources/UI/Bar/hpmanabar.png");
 }
@@ -37,6 +41,7 @@ void Player::initGUI()
 	this->HPbar = new gui::bar(this->hpbar.left, this->hpbar.top, this->hpbar.width, this->hpbar.height, this->stat["HP"], this->stat["MAXHP"], &this->font, 26, sf::Color::Black, sf::Color::Red, sf::Color::White, &bar);
 	this->Rampagebar = new gui::bar(this->rampagebar.left, this->rampagebar.top, this->rampagebar.width, this->rampagebar.height, 0, 100, &this->font, 26, sf::Color::Black, sf::Color::Magenta, sf::Color::White, &bar);
 	this->swordskill = new gui::bar(this->swordskillbar.left, this->swordskillbar.top, this->swordskillbar.width , this->swordskillbar.height, this->WaveSwordCooldown.asSeconds(), this->WaveSwordCooldown.asSeconds(), &this->font, 26, sf::Color::Black, sf::Color::Blue, sf::Color::White);
+	this->slideBar = new gui::bar(this->slidebar.left, this->slidebar.top, this->slidebar.width, this->slidebar.height, 20.f, 20.f, &this->font, 26, sf::Color::Black, sf::Color(200,200,0,255), sf::Color::White);
 }
 
 void Player::initComponents()
@@ -140,6 +145,7 @@ void Player::flip() // <-- suppose to be update function
 
 void Player::Attacked()
 {
+	if (this->invincible) return;
 	this->Isattacked = true;
 	this->invincible = true;
 }
@@ -165,6 +171,15 @@ void Player::swordwave()
 void Player::swordfall()
 {
 	this->swordfalling = true;
+}
+void Player::Slide()
+{
+	if (this->movementComponent->getState(MID_AIR)) return;
+	if (this->Isattacked) return;
+	if (this->attacking) return;
+	if (this->swordwaving) return;
+	if (this->slide) return;
+	this->slide = true;
 }
 //===========================================================================
 const bool& Player::getSwordFallFloor() const
@@ -200,6 +215,11 @@ void Player::stopWalkSound()
 	if (this->walksound.getStatus() == sf::Sound::Playing) {
 		this->walksound.stop();
 	}
+}
+
+const bool& Player::getSlide() const
+{
+	return this->slide;
 }
 
 //========================= Update stuff ====================================
@@ -409,7 +429,7 @@ void Player::UpdateAnimation(const float& deltaTime)
 		this->attackIdx = 0;
 		for (int i = 0; i < 3; i++) this->attackPlayed[i] = false;
 	}
-
+	
 	//================================ not priority animation =================================
 	if (this->movementComponent->getState(CROUCH)) {
 		this->hitboxComponent->movepos(0, 20, 0, -20);
@@ -447,6 +467,25 @@ void Player::UpdateAnimation(const float& deltaTime)
 			this->walksound.play();
 		}
 	}
+	//================================ Slide ==================================================
+	if (this->slide) {
+		if ((this->elapsed - this->slideCooldown >= sf::seconds(20.f) || (this->elapsed < sf::seconds(20.f) && this->slideCooldown == sf::seconds(0.f)))) {
+			this->slideCooldown = this->elapsed;
+			this->slideTime = this->elapsed;
+			this->invincible = true;
+			this->disableInput = true;
+		}
+		if (this->disableInput) {
+			if (this->sprite.getScale().x > 0) this->sprite.move(sf::Vector2f(1000.f * deltaTime, 0)), this->flameSprite.setPosition(this->sprite.getPosition().x - 15, this->sprite.getPosition().y + 10);
+			else this->sprite.move(sf::Vector2f(-1000.f * deltaTime, 0)), this->flameSprite.setPosition(this->sprite.getPosition().x + 15, this->sprite.getPosition().y + 10);
+			this->animationComponent->play("SLIDE", deltaTime);
+			if (this->elapsed - this->slideTime >= sf::seconds(0.5f)) {
+				this->slide = false;
+				this->invincible = false;
+				this->disableInput = false;
+			}
+		}
+	}
 	//Sound
 	if ((!this->movementComponent->getState(MOVING_LEFT) && !this->movementComponent->getState(MOVING_RIGHT)) || this->movementComponent->getState(MID_AIR) || this->checkDeath()) this->walksound.stop();
 }
@@ -460,7 +499,13 @@ void Player::UpdateGUI(const float& deltaTime)
 	}
 	this->swordskillbar.left = this->getHitboxGlobalbound().left - 5;
 	this->swordskillbar.top = this->getHitboxGlobalbound().top - 15;
+	if (this->elapsed - this->slideCooldown <= sf::seconds(20.f) || (this->elapsed < this->slideCooldown && this->slideCooldown == sf::seconds(0.f))) {
+		this->slideBar->setValue((this->elapsed - this->slideCooldown).asSeconds());
+	}
+	this->slidebar.left = this->getHitboxGlobalbound().left - 5;
+	this->slidebar.top = this->getHitboxGlobalbound().top - 20;
 	this->swordskill->Update();
+	this->slideBar->Update();
 }
 void Player::UpdateSound()
 {
@@ -522,10 +567,14 @@ void Player::Update(const float& deltaTime, sf::Vector2f &mousePosView)
 	
 }
 
-void Player::Render(sf::RenderTarget& target, bool showhitbox)
+void Player::Render(sf::RenderTarget& target, sf::Shader* shader, bool showhitbox)
 {
-	if(this->onrampage) target.draw(this->flameSprite);
-	target.draw(this->sprite);
+	
+	shader->setUniform("hasTexture", true);
+	shader->setUniform("lightPos", this->getCenter());
+
+	if(this->onrampage) target.draw(this->flameSprite, shader);
+	target.draw(this->sprite, shader);
 
 	if (this->hitboxComponent && showhitbox)
 		hitboxComponent->Render(target);
@@ -534,8 +583,12 @@ void Player::Render(sf::RenderTarget& target, bool showhitbox)
 		if (this->attackhitboxComponent[i] && showhitbox)
 			attackhitboxComponent[i]->Render(target);
 	}
-	if (this->swordFall) this->swordFall->Render(target);
-	if (this->swordWave) this->swordWave->Render(target);
+	if (this->swordFall) {
+		this->swordFall->Render(target, shader);
+	}
+	if (this->swordWave) {
+		this->swordWave->Render(target, shader);
+	}
 
 	if (this->HPbar)
 		HPbar->Render(target);
@@ -544,4 +597,6 @@ void Player::Render(sf::RenderTarget& target, bool showhitbox)
 		Rampagebar->Render(target);
 	if (this->swordskill && this->elapsed - this->swordWavedelayTime < this->WaveSwordCooldown && this->swordWavedelayTime != sf::seconds(0.f) )
 		this->swordskill->Render(target);
+	if (this->elapsed - this->slideCooldown < sf::seconds(20.f) && this->slideCooldown != sf::seconds(0.f) )
+		this->slideBar->Render(target);
 }

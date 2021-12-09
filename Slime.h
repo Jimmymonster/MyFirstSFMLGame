@@ -42,5 +42,8 @@ public:
 	void UpdateGUI();
 	void UpdateAnimation(const float& deltaTime);
 	virtual void Update(const float& deltaTime, sf::Vector2f playerPos);
+
+	//Render
+	void Render(sf::RenderTarget& target, sf::Shader* shader = nullptr, bool showhitbox = false);
 };
 

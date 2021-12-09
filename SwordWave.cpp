@@ -27,8 +27,8 @@ void SwordWave::Update(const float& deltaTime)
 	
 }
 
-void SwordWave::Render(sf::RenderTarget& target)
+void SwordWave::Render(sf::RenderTarget& target, sf::Shader* shader)
 {
-	target.draw(this->sprite);
+	target.draw(this->sprite,shader);
 	//this->hitboxComponent->Render(target);
 }

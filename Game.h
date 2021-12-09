@@ -13,7 +13,7 @@ private:
 	std::vector<sf::VideoMode> videoModes;
 	sf::VideoMode videoMode; // <-- default
 	sf::ContextSettings window_settings;
-
+	sf::Image icon;
 	sf::RectangleShape Mouse;
 	sf::Texture MouseTexture;
 

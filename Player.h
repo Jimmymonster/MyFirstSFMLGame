@@ -17,12 +17,13 @@ private:
 	bool finishdeath;
 	bool disableInput;
 	bool onrampage;
+	bool slide;
 	float x, y;
 
 	int attackIdx;
 	bool attackPlayed[3];
 	
-	sf::FloatRect hpbar, rampagebar, swordskillbar;
+	sf::FloatRect hpbar, rampagebar, swordskillbar,slidebar;
 	sf::Texture bar;
 
 	HitboxComponent* attackhitboxComponent[5];
@@ -31,6 +32,7 @@ private:
 	// 4 swordfall
 	gui::bar* Rampagebar;
 	gui::bar* swordskill;
+	gui::bar* slideBar;
 	sf::Time WaveSwordCooldown = sf::seconds(8.f);
 
 	sf::Texture flame;
@@ -48,6 +50,8 @@ private:
 	sf::Time attackdelayTime = sf::seconds(0);
 	sf::Time swordWavedelayTime = sf::seconds(0);
 	sf::Time swordFalldelayTime = sf::seconds(0);
+	sf::Time slideCooldown = sf::seconds(0);
+	sf::Time slideTime = sf::seconds(0);
 	sf::Time time2 = sf::seconds(0);
 	sf::Time rampageDelay = sf::seconds(0);
 
@@ -76,6 +80,7 @@ public:
 	void Attack();
 	void swordwave();
 	void swordfall();
+	void Slide();
 	void playSound(std::string key);
 
 	//Accessor
@@ -83,6 +88,7 @@ public:
 	const bool& DisableInput()const;
 	const bool& onRampage()const;
 	const bool& getSwordFallFloor()const;
+	const bool& getSlide()const;
 	const sf::FloatRect getAttackHitboxGlobalbound(int idx)const;
 	//Modifier
 	void setRampage(float value);
@@ -92,6 +98,6 @@ public:
 	void UpdateGUI(const float& deltaTime);
 	void UpdateSound();
 	virtual void Update(const float& deltaTime, sf::Vector2f &mousePosView);
-	virtual void Render(sf::RenderTarget& target, bool showhitbox = false);
+	virtual void Render(sf::RenderTarget& target, sf::Shader* shader = nullptr, bool showhitbox = false);
 };
 

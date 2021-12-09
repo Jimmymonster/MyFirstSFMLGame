@@ -53,8 +53,8 @@ void HitboxComponent::setcenter()
 void HitboxComponent::Update()
 {
 	//bug fix if my entity struck on floor
-	if (this->hitbox.getPosition().y + this->hitbox.getGlobalBounds().height > 735.f && this->floor) {
-		this->sprite.setPosition(this->sprite.getPosition().x,730.f - height - offsetX - moveX);
+	if (this->hitbox.getPosition().y + this->hitbox.getGlobalBounds().height > 710.f && this->floor) {
+		this->sprite.setPosition(this->sprite.getPosition().x,705.f - height - offsetX - moveX);
 	}
 	//========================
 	this->hitbox.setPosition(this->sprite.getPosition().x + offsetX + moveX, this->sprite.getPosition().y + offsetY + moveY);

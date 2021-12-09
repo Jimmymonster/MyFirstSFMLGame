@@ -84,8 +84,8 @@ void SwordFall::Update(const float& deltatime, sf::Vector2f& mousePosView)
 	}
 }
 
-void SwordFall::Render(sf::RenderTarget& target)
+void SwordFall::Render(sf::RenderTarget& target, sf::Shader* shader)
 {
-	target.draw(this->sprite);
+	target.draw(this->sprite,shader);
 	//this->hitboxComponent->Render(target);
 }

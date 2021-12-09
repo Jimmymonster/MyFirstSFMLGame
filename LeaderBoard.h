@@ -1,6 +1,7 @@
 #pragma once
 #include "State.h"
 #include "GUI.h"
+#include "pFirefly.h"
 class LeaderBoard :
     public State
 {
@@ -12,6 +13,7 @@ private:
     gui::textbox* playerscore[5];
     
     gui::Button* quitBTN;
+    pFirefly* pfirefly;
     
     //background
     sf::RectangleShape background;

@@ -4,7 +4,7 @@
 #include "ItemDrop.h"
 #include "PauseMenu.h"
 #include "NameInput.h"
-
+#include "SlimeSplash.h"
 class GameState :
     public State
 {
@@ -27,6 +27,9 @@ private:
     gui::damageNumber* dmgNum[1000];
     gui::damageNumber* playerdmgNum;
 
+    //Shader
+    sf::Shader core_shader;
+
     //For player death delay
     sf::Clock clock;
     sf::Time elapsed = sf::seconds(0.f);
@@ -39,6 +42,7 @@ private:
     Slime* slime[1000];
     sf::Time ItemDelayTime[1000];
     ItemDrop* Item[1000];
+    //Particles
 
     //Spawner
     int spawnnum;
@@ -49,8 +53,11 @@ private:
     sf::Time spawnnumTimer = sf::seconds(0.f);
 
     //background
-    sf::RectangleShape background[2];
-    sf::Texture backgroundTexture[2];
+    sf::RectangleShape background;
+    sf::Texture backgroundTexture, backgroundTextureSheet;
+    sf::Sprite backgroundSprite;
+    AnimationComponent* backgroundAnimation;
+    pFirefly* pfirefly;
 
     //Sounds
     sf::Music bgm;
@@ -73,6 +80,7 @@ private:
     void initTextures();
     void initMenu();
     void initPlayers();
+    void initShaders();
     void initEntities();
     void initGUI();
     void initBackground();
