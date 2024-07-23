@@ -1,6 +1,6 @@
 # Download Release
 https://drive.google.com/file/d/1IPxdRv01WJOP2hWF_FQI4aYSQYzIkX2L/view <br>
-Extract File and run Mygame.exe then you're good to go!!!
+Extract File and run Mygame.exe then you're good to go!!! <br>
 You may find that the window defender waring you but If you trust me you can run it.
 
 # Game Play Description
