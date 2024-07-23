@@ -10,7 +10,7 @@ You are a adventureer and find that you're in the slime horde. There're no way t
 - left click to do 3 hit combos. The last hit ignore enemy defense.
 - right click to unleash sword energy. Cooldown for 8 sec
 - press e to use unlimited sword. No cooldown
-- When rampage guage is full you're enter rampage mode. In rampage mode every damage you done will 1 hit enemy also every enemy you kill restore your health for 1%.
+- When rampage guage is full you will enter rampage mode. In rampage mode every damage you done will 1 hit enemy also every enemy you kill restore your health for 1%.
 - There are a chance that enemy will drop loot that will increase your stat.
 - When the time pass the enemy stat increase as exponential. That means you can be 1 hit by enemy if you play long enough.
 
